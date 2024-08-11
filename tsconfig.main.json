@@ -1,0 +1,7 @@
+// 作用：用于编译主进程代码,使用CommonJS模块规范，适用于Electron主进程代码，确保与Node.js兼容
+{
+  "extends": "./tsconfig.json", // 继承自根目录下的tsconfig.json
+  "compilerOptions": {
+    "module": "CommonJS" // 指定模块规范为CommonJS
+  }
+}
