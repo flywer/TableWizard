@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import {useAppNotificationStore} from "@render/stores/app/appNotification";
 import {useRoute} from "vue-router";
 import {computed, onMounted, ref, watch} from "vue";
 import {Project} from "@main/entity/Project";
@@ -27,8 +26,6 @@ import {ProjectApi} from "@render/api/ProjectApi";
 import {toNumber} from "lodash";
 import LeftSiderMenu from "@render/components/project/LeftSiderMenu.vue";
 import {useProjectPageStore} from "@render/stores/useProjectPage";
-import {router} from "@render/router";
-import {RouteName} from "@common/constants/app/RouteName";
 import {useThemeVars} from "naive-ui";
 
 defineOptions({name: 'Project'})

@@ -10,6 +10,7 @@
 
 		<div>
 			<n-grid
+				ref="menuGrid"
 				class="absolute top-1 left-22 right-0"
 				cols="2 400:4 600:6 1000:7 1200:8 1400:9 1600:10"
 				x-gap="4"
@@ -18,7 +19,9 @@
 				<n-gi class="menu-grid-item" v-for="item in useTopMenu.menuItemOptions" :key="item.name">
 					<MenuItem :title="item.name" :menuKey="item.key" class="h-8"/>
 				</n-gi>
-				<n-gi v-if="useTopMenu.hiddenStartIndex && useTopMenu.hiddenStartIndex > 0" suffix>
+				<n-gi
+					v-if="useTopMenu.hiddenStartIndex && useTopMenu.hiddenStartIndex > 0 && dropdownMenuItemOptions.length > 0"
+					suffix>
 					<div>
 						<n-dropdown
 							:size="'small'"
@@ -27,8 +30,9 @@
 							trigger="click"
 							@select="handleDropDownSelect"
 						>
-							<n-button quaternary size="small" class="no-drag w-8 h-7">
-								+{{ dropdownMenuItemOptions.length }}
+							<n-button quaternary size="small" class="no-drag h-8">
+								<n-text class="text-lg">+</n-text>
+								<n-text>{{ dropdownMenuItemOptions.length }}</n-text>
 							</n-button>
 						</n-dropdown>
 					</div>
@@ -39,14 +43,15 @@
 </template>
 
 <script setup lang="ts">
-import {computed, nextTick, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
 import MenuItem from "@render/components/TopMenuBar/MenuItem.vue";
 import {useTopMenuStore} from "@render/stores/useTopMenu";
-import {useThemeVars} from "naive-ui";
 
 defineOptions({name: 'TopMenuBar'})
 
 const useTopMenu = useTopMenuStore()
+
+const menuGrid = ref()
 
 // 计算被隐藏的下拉菜单值
 const dropdownMenuItemOptions = computed(() => {
@@ -61,20 +66,19 @@ const dropdownMenuItemOptions = computed(() => {
 })
 
 const checkOverflow = () => {
-	const gridMenuItems = document.querySelectorAll('.menu-grid-item');
-
-	// console.log('gridMenuItems.length', gridMenuItems.length)
-
-	// 根据item.clientWidth判断当前item是否因为溢出而隐藏，获取其索引
-	for (let i = 0; i < gridMenuItems.length; i++) {
-		// console.log(i, gridMenuItems.item(i).clientWidth)
-		if (gridMenuItems.item(i).clientWidth === 0) {
-			useTopMenu.hiddenStartIndex = i
-			// console.log(useTopMenu.hiddenStartIndex)
-			break
+	// 需要等待页面渲染完成后再执行checkOverflow
+	setTimeout(() => {
+		const gridMenuItems = document.querySelectorAll('.menu-grid-item');
+		// 根据item.clientWidth判断当前item是否因为溢出而隐藏，获取其索引
+		for (let i = 0; i < gridMenuItems.length; i++) {
+			if (gridMenuItems.item(i).clientWidth === 0) {
+				useTopMenu.hiddenStartIndex = i
+				// console.log(useTopMenu.hiddenStartIndex)
+				break
+			}
+			useTopMenu.hiddenStartIndex = null
 		}
-		useTopMenu.hiddenStartIndex = null
-	}
+	}, 50)
 };
 
 const handleDropDownSelect = (key: number) => {
@@ -83,13 +87,8 @@ const handleDropDownSelect = (key: number) => {
 }
 
 onMounted(() => {
-	nextTick(() => {
-		useTopMenuStore().init()
-	})
-
-	// 需要等待页面渲染完成后再执行checkOverflow
-	setTimeout(() => checkOverflow(), 200)
-
+	useTopMenuStore().init()
+	checkOverflow()
 	window.addEventListener('resize', checkOverflow)
 })
 
@@ -108,6 +107,14 @@ watch(dropdownMenuItemOptions, (value) => {
 		useTopMenu.switchItem(useTopMenu.activeItemKey, hiddenStartItem.key)
 	}
 })
+
+// 监听menuGrid的宽度变化
+/*watch(menuGrid, (value) => {
+	console.log(value)
+	if (value) {
+		value.$el.addEventListener('resize', checkOverflow)
+	}
+})*/
 
 </script>
 

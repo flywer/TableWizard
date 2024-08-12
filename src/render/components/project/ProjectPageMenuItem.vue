@@ -3,7 +3,7 @@
     <n-icon :size="22">
       <slot name="icon"/>
     </n-icon>
-    <span class="text-xs select-none">{{ title }}</span>
+    <n-text class="text-xs select-none" depth="1">{{ title }}</n-text>
   </n-flex>
 </template>
 

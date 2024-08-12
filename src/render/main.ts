@@ -12,6 +12,8 @@ import 'virtual:uno.css'
 // 全局样式
 import '@render/styles/global.css'
 
+import 'animate.css';
+
 createApp(App)
 	.use(naive)
 	.use(router)

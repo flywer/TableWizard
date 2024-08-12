@@ -39,7 +39,7 @@ import {ref} from "vue";
 import {useTopMenuStore} from "@render/stores/useTopMenu";
 import {useThemeVars} from "naive-ui";
 import {useRouter} from "vue-router";
-import {RouteName} from "@common/constants/app/RouteName";
+import {useProjectPageStore} from "@render/stores/useProjectPage";
 
 const props = defineProps({
 	isMain: {
@@ -60,6 +60,7 @@ const props = defineProps({
 const router = useRouter();
 
 const useTopMenu = useTopMenuStore()
+const useProjectPage =useProjectPageStore()
 
 const themeVars = useThemeVars().value
 const defaultColor = themeVars.railColor
@@ -119,10 +120,9 @@ const handleClick = () => {
 }
 
 const handleClose = () => {
-	console.log('handleClose')
 	useTopMenu.removeMenuItem(props.menuKey)
+	useProjectPage.removeItem(props.menuKey)
 }
-
 </script>
 
 <style scoped lang="less">

@@ -11,11 +11,8 @@
 
 <script setup lang="ts">
 import type {MenuOption} from 'naive-ui'
-import {h, onMounted} from "vue";
+import {h, onMounted, watch} from "vue";
 import {RouterLink} from "vue-router";
-import {
-	AppsList24Regular
-} from "@vicons/fluent";
 import {RouteName} from "@common/constants/app/RouteName";
 import {useTopMenuStore} from "@render/stores/useTopMenu";
 import {useProjectPageStore} from "@render/stores/useProjectPage";
@@ -67,19 +64,22 @@ const handleUpdate = (value: string) => {
 		useProjectPage.projectStateMap.get(useTopMenu.activeItemKey).activeSideMenuItemKey = value
 	} else {
 		useProjectPage.projectStateMap.set(useTopMenu.activeItemKey, {
-			activeSideMenuItemKey: value
+			activeSideMenuItemKey: value,
+			splitSize: '200px'
 		})
 	}
 }
 
 onMounted(() => {
 	// 从其他页面，比如首页加载进来时，判断当前项目是否已有缓存的激活菜单项，存在则直接跳转，不存在则新增，跳转到默认菜单项
-	if (useProjectPage.projectStateMap.has(useTopMenu.activeItemKey)) {
-		useProjectPage.activeSideMenuItemKey = useProjectPage.projectStateMap.get(useTopMenu.activeItemKey).activeSideMenuItemKey
-	} else {
-		useProjectPage.activeSideMenuItemKey = RouteName.modelManager
-	}
+	useProjectPage.loadActiveSideMenuItemKey(useTopMenu.activeItemKey)
 })
+
+watch(() => useTopMenu.activeItemKey, (value) => {
+	// 切换项目时，判断当前项目是否已有缓存的激活菜单项，存在则直接跳转，不存在则新增，跳转到默认菜单项
+	useProjectPage.loadActiveSideMenuItemKey(value)
+})
+
 </script>
 
 <style scoped lang="less">
