@@ -10,15 +10,22 @@
 		<div class="absolute top-10 left-0 right-4 bottom-0">
 			<GroupMenu
 				:menu-options="menuOptions"
+				:selected-key="activeKey"
+				:expanded-keys="expandedKeys"
+				@update:selected-key="handleUpdateSelectedKey"
+				@update:expanded-keys="handleUpdateExpandedKey"
 			/>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import {reactive} from "vue";
+import {reactive, ref} from "vue";
 import GroupMenu from "@render/components/GroupMenu/GroupMenu.vue";
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
+
+const activeKey = ref<string>(null);
+const expandedKeys = ref<string[]>(null);
 
 const menuOptions = reactive<GroupMenuOption[]>([
 	{
@@ -56,37 +63,37 @@ const menuOptions = reactive<GroupMenuOption[]>([
 										menuType: 'tree',
 										label: '数据表1-1-1-1',
 										key: 'dataTable1-1-1-1',
-										icon: 'i-tabler:table',
-										children: [
-											{
-												menuType: 'tree',
-												label: '数据表1-1-1-1-1',
-												key: 'dataTable1-1-1-1-1',
-												icon: 'i-tabler:table',
-												children: [
-													{
-														menuType: 'tree',
-														label: '数据表1-1-1-1-1-1',
-														key: 'dataTable1-1-1-1-1-1',
-														icon: 'i-tabler:table',
-														children: [
-															{
-																menuType: 'tree',
-																label: '数据表1-1-1-1-1-1-1',
-																key: 'dataTable1-1-1-1-1-1-1',
-																icon: 'i-tabler:table',
-															}
-														]
-													}]
-											}]
+										icon: 'i-tabler:table'
 									}]
 							}]
-					}]
+					},
+					{
+						menuType: 'tree',
+						label: '数据表1-1-1-1-1',
+						key: 'dataTable1-1-1-1-1',
+						icon: 'i-tabler:table',
+						children: [
+							{
+								menuType: 'tree',
+								label: '数据表1-1-1-1-1-1',
+								key: 'dataTable1-1-1-1-1-1',
+								icon: 'i-tabler:table',
+								children: [
+									{
+										menuType: 'tree',
+										label: '数据表1-1-1-1-1-1-1',
+										key: 'dataTable1-1-1-1-1-1-1',
+										icon: 'i-tabler:table',
+									}
+								]
+							}]
+					}
+				]
 			}
 		]
 	},
 	{
-		menuType: 'group',
+		menuType: 'tree',
 		label: '树',
 		key: 'tree',
 		icon: 'i-tabler:tree',
@@ -94,7 +101,13 @@ const menuOptions = reactive<GroupMenuOption[]>([
 	}
 ])
 
+const handleUpdateSelectedKey = (key: string, option: GroupMenuOption) => {
+	activeKey.value = key
+}
 
+const handleUpdateExpandedKey = (keys: string[], options: GroupMenuOption[]) => {
+	expandedKeys.value = keys
+}
 </script>
 
 <style scoped lang="less">

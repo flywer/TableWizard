@@ -4,6 +4,5 @@ export type GroupMenuOption = {
 	key: string
 	icon: string
 	hasExtraButton?: boolean
-	expanded?: boolean
 	children?: GroupMenuOption[]
 }

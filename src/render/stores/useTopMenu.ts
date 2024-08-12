@@ -18,7 +18,6 @@ export interface TopMenu {
 	targetItemKey: number, // 目标item key
 }
 
-
 export const useTopMenuStore = defineStore({
 	id: 'topMenu',
 	state: (): TopMenu => ({

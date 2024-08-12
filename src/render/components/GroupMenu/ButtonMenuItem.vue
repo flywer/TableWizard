@@ -4,18 +4,19 @@
 		tag="span"
 		class="justify-left pl-1 w-full"
 		@click="handleMenuClick(group)"
-		:style="{backgroundColor: activeKey === group.key ? useThemeVars().value.buttonColor2Hover : ''}"
+		:style="{backgroundColor: selectedKey === group.key ? useThemeVars().value.buttonColor2Hover : ''}"
 	>
 		<template #icon>
 			<n-text depth="2">
 				<component :is="renderItemIcon()"/>
 			</n-text>
 		</template>
-		<component :is="renderItemPrefixIcon()"/>
-		<n-text depth="2">{{ group.label }}
-		</n-text>
+		<n-flex :wrap="false" class="whitespace-nowrap overflow-hidden text-ellipsis" :size="0">
+			<component :is="renderItemPrefixIcon()" class="shrink-0"/>
+			<n-text depth="2">{{ group.label }}</n-text>
+		</n-flex>
 		<n-text depth="3">
-			<component :is="renderItemSuffixIcon()" :class="group.expanded? 'rotate-90':''"/>
+			<component :is="renderItemSuffixIcon()" :class="isExpanded ? 'rotate-90':''"/>
 		</n-text>
 
 		<div v-if="group.hasExtraButton" class="absolute top-1.5 right-1.5">
@@ -30,17 +31,25 @@
 
 <script setup lang="ts">
 import {useThemeVars} from "naive-ui";
-import {h, PropType, VNodeChild} from "vue";
+import {computed, h, PropType, VNodeChild} from "vue";
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
 
 const props = defineProps({
 	group: Object as PropType<GroupMenuOption>,
+	selectedKey: String,
+	expandedKeys: Array as PropType<string[]>,
 	handleMenuClick: Function as PropType<(option: GroupMenuOption) => void>,
-	activeKey: String,
 	renderPrefix: {
 		type: Function as PropType<() => VNodeChild>,
 		default: undefined
 	}
+});
+
+const isExpanded = computed(() => {
+	if (props.expandedKeys) {
+		return  props.expandedKeys.includes(props.group.key);
+	}
+	return false
 });
 
 /**
@@ -52,7 +61,7 @@ const renderItemIcon = () => {
 	} else {
 		let expandedIconClass: string
 		if (props.group.children) {
-			if (props.group.expanded) {
+			if (isExpanded.value) {
 				expandedIconClass = 'i-tabler:chevron-down w-3'
 			} else {
 				expandedIconClass = 'i-tabler:chevron-right w-3'
@@ -70,7 +79,7 @@ const renderItemPrefixIcon = () => {
 	} else {
 		let folderIconClass: string
 		if (props.group.children) {
-			if (props.group.expanded) {
+			if (isExpanded.value) {
 				folderIconClass = 'i-material-symbols:folder-open-outline-rounded'
 			} else {
 				folderIconClass = 'i-material-symbols:folder-outline-rounded'
