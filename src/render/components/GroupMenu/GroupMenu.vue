@@ -63,8 +63,6 @@ watch(_selectKey, (newVal) => {
 })
 
 watch(_expandKeys, (newVal) => {
-	console.log('watch(_expandKeys', newVal)
-
 	if (expandedKeysControlled.value && !isExpandEmitting.value) {
 		internalExpandedKeys.value = newVal;
 	}

@@ -1,5 +1,8 @@
+export type GroupMenuOptionType = 'overview' | 'folder' | 'datatable'
+
 export type GroupMenuOption = {
-	menuType: 'group' | 'tree' //菜单节点是组还是树，影响子菜单
+	menuType: 'group' | 'tree' // GroupMenu控制自身菜单渲染规则的属性
+	type: GroupMenuOptionType // 每个菜单的特有属性，控制着右侧Tab的渲染规则
 	label: string
 	key: string
 	icon: string

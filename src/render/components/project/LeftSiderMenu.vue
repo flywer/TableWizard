@@ -1,24 +1,26 @@
 <template>
 	<n-menu
-		v-model:value="useProjectPage.activeSideMenuItemKey"
+		v-if="useProjectPage.projectStateMap.has(projectId)"
+		v-model:value="useProjectPage.projectStateMap.get(projectId).activeSideMenuItemKey"
 		id="side-menu"
 		class="w-20 pt-2"
 		:options="menuOptions"
 		draggable="false"
-		@update:value="handleUpdate"
 	/>
 </template>
 
 <script setup lang="ts">
 import type {MenuOption} from 'naive-ui'
-import {h, onMounted, watch} from "vue";
+import {h} from "vue";
 import {RouterLink} from "vue-router";
 import {RouteName} from "@common/constants/app/RouteName";
-import {useTopMenuStore} from "@render/stores/useTopMenu";
 import {useProjectPageStore} from "@render/stores/useProjectPage";
 import ProjectPageMenuItem from "@render/components/project/ProjectPageMenuItem.vue";
 
-const useTopMenu = useTopMenuStore()
+const props = defineProps({
+	projectId: Number
+})
+
 const useProjectPage = useProjectPageStore()
 
 const menuOptions: MenuOption[] = [
@@ -29,7 +31,7 @@ const menuOptions: MenuOption[] = [
 				{
 					to: {
 						name: RouteName.modelManager,
-						query: {projectId: useTopMenu.activeItemKey}
+						query: {projectId: props.projectId}
 					},
 					draggable: false
 				},
@@ -46,7 +48,7 @@ const menuOptions: MenuOption[] = [
 				{
 					to: {
 						name: RouteName.typeManager,
-						query: {projectId: useTopMenu.activeItemKey}
+						query: {projectId: props.projectId}
 					},
 					draggable: false
 				},
@@ -57,28 +59,6 @@ const menuOptions: MenuOption[] = [
 		key: RouteName.typeManager,
 	},
 ]
-
-const handleUpdate = (value: string) => {
-	// 当在某个项目页面下点击左侧菜单时，更新激活的菜单项
-	if (useProjectPage.projectStateMap.has(useTopMenu.activeItemKey)) {
-		useProjectPage.projectStateMap.get(useTopMenu.activeItemKey).activeSideMenuItemKey = value
-	} else {
-		useProjectPage.projectStateMap.set(useTopMenu.activeItemKey, {
-			activeSideMenuItemKey: value,
-			splitSize: '200px'
-		})
-	}
-}
-
-onMounted(() => {
-	// 从其他页面，比如首页加载进来时，判断当前项目是否已有缓存的激活菜单项，存在则直接跳转，不存在则新增，跳转到默认菜单项
-	useProjectPage.loadActiveSideMenuItemKey(useTopMenu.activeItemKey)
-})
-
-watch(() => useTopMenu.activeItemKey, (value) => {
-	// 切换项目时，判断当前项目是否已有缓存的激活菜单项，存在则直接跳转，不存在则新增，跳转到默认菜单项
-	useProjectPage.loadActiveSideMenuItemKey(value)
-})
 
 </script>
 

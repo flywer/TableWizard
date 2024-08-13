@@ -1,19 +1,22 @@
 <template>
 	<div class="flex h-full">
-		<div v-if="project">
+		<div v-if="project != undefined">
 			<div class="absolute left-0 top-0 w-20 h-full" :style="{backgroundColor:useThemeVars().value.dividerColor}">
-				<LeftSiderMenu/>
+				<LeftSiderMenu :projectId="projectId"/>
 				<n-divider class="absolute top-0 -right-2" vertical style="height: 100%"/>
 			</div>
 			<div class="absolute left-20 right-0 h-full">
 				<router-view/>
 			</div>
 		</div>
-		<n-flex v-else vertical align="center">
-			<div class="w-100 select-none" draggable="false">
+		<n-flex v-else
+						class="select-none relative left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" justify="center"
+						align="center"
+						vertical>
+			<n-spin v-if="isLoading" :size="'large'"/>
+			<div v-else class="w-100 select-none" draggable="false">
 				<img src="@render/assets/404.svg" alt="" draggable="false"/>
 			</div>
-			<n-text strong class="text-3xl select-none">项目不存在</n-text>
 		</n-flex>
 	</div>
 </template>
@@ -34,20 +37,38 @@ const useProjectPage = useProjectPageStore()
 
 // 获取传入的参数
 const route = useRoute();
-const projectId = computed(() => route.query.projectId)
-const project = ref<Project>(null)
+const projectId = computed(() => toNumber(route.query.projectId))
+const project = ref<Project>(undefined)
+
+const isLoading = ref(false)
+
 // 因路由跳转,更新当前项目ID
 watch(projectId, async (value) => {
 	if (value) {
 		project.value = (await ProjectApi.getProjectById(toNumber(value))).data
-		await useProjectPage.routeTo(project.value.id)
+		if (project.value) {
+			console.log(useProjectPage.projectStateMap.has(projectId.value))
+			if (!useProjectPage.projectStateMap.has(projectId.value)) {
+				console.log('init')
+				useProjectPage.initProjectState(projectId.value)
+				console.log(projectId.value)
+				console.log(useProjectPage.projectStateMap.get(projectId.value))
+			}
+			await useProjectPage.siderMenuRouteTo(project.value.id)
+		}
 	}
 })
 
 onMounted(async () => {
-	project.value = (await ProjectApi.getProjectById(toNumber(route.query.projectId))).data
-
-	await useProjectPage.routeTo(project.value.id)
+	isLoading.value = true
+	project.value = (await ProjectApi.getProjectById(projectId.value)).data
+	if (project.value) {
+		if (!useProjectPage.projectStateMap.has(projectId.value)) {
+			useProjectPage.initProjectState(projectId.value)
+		}
+		await useProjectPage.siderMenuRouteTo(project.value.id)
+	}
+	isLoading.value = false
 })
 </script>
 
