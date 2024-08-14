@@ -48,6 +48,7 @@ import {DataTableColumns, NButton, NCheckbox, NFlex, NIcon, NInput, NInputNumber
 import {ArrowSync16Regular} from "@vicons/fluent";
 import {v4 as uuidv4} from 'uuid';
 import {NSelect} from "naive-ui/lib";
+import TableSelect from "@render/components/project/modelManager/tableInputer/TableSelect.vue";
 
 const props = defineProps({
 	projectId: {
@@ -76,8 +77,7 @@ const fieldInit = () => {
 	}
 }
 
-
-function createData(): TableField[] {
+function createData(): EntityField[] {
 	return [
 		fieldInit(),
 		fieldInit(),
@@ -89,7 +89,7 @@ function createData(): TableField[] {
 	]
 }
 
-const data = ref<TableField[]>(createData())
+const data = ref<EntityField[]>(createData())
 
 const commonTableHeader = (title: string) => {
 	return h(NFlex, {justify:'center'}, () => [
@@ -97,7 +97,7 @@ const commonTableHeader = (title: string) => {
 	])
 }
 
-const createColumns = (): DataTableColumns<TableField> => [
+const createColumns = (): DataTableColumns<EntityField> => [
 	{
 		key: 'defKey',
 		title() {
@@ -169,8 +169,16 @@ const createColumns = (): DataTableColumns<TableField> => [
 		title: '字段类型',
 		key: 'type',
 		render(row, index) {
-			return h(NSelect, {
+			return h(TableSelect, {
 				value: row.type,
+				options: [
+					{label: 'int', value: 'int'},
+					{label: 'varchar', value: 'varchar'},
+					{label: 'decimal', value: 'decimal'},
+					{label: 'datetime', value: 'datetime'},
+					{label: 'text', value: 'text'},
+					{label: 'json', value: 'json'},
+				],
 				size: 'small',
 				onUpdateValue(v) {
 					data.value[index].type = v

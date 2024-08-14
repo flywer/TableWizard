@@ -1,6 +1,5 @@
-import {Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, VersionColumn} from "typeorm"
+import {PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, VersionColumn} from "typeorm"
 
-@Entity()
 export abstract class BaseDO {
 
 	/**
@@ -22,7 +21,7 @@ export abstract class BaseDO {
 	updateTime: Date;
 
 	/**
-	 * 版本号
+	 * 版本号（自增）
 	 **/
 	@VersionColumn()
 	version: number;

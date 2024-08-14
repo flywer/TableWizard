@@ -2,6 +2,8 @@ import {DataSource} from "typeorm";
 import {join} from "node:path";
 import {AppConstant} from "@common/constants/app/AppConstant";
 import {Project} from "@main/entity/Project";
+import {Model} from "@main/entity/Model";
+import {ModelVersionHistory} from "@main/entity/ModelVersionHistory";
 
 export const ServiceSource = new DataSource({
 	/*type: "mysql",
@@ -17,5 +19,5 @@ export const ServiceSource = new DataSource({
 	database: join(AppConstant.APP_DATA_PATH, '/cache/cache.lite'),
 	synchronize: true,
 	logging: false,
-	entities: [Project],
+	entities: [Project, Model, ModelVersionHistory],
 })

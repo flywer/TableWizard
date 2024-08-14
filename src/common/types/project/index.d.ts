@@ -4,8 +4,17 @@ declare interface CreateProjectReqVO {
 	icon: string
 }
 
+declare interface Entity {
+	name: string; // 表名
+	comment?: string; // 表注释
+	fields: EntityField[]; // 字段信息数组
+	engine?: string; // 数据库引擎
+	charset?: string; // 字符集
+	collation?: string; // 校对规则
+}
+
 // 表字段属性
-declare interface TableField {
+declare interface EntityField {
 	id: string
 	defKey: string
 	defName: string
