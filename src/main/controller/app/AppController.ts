@@ -28,6 +28,7 @@ export class AppController {
 	@IpcHandle(AppApiChannel.OPEN_DEFAULT_BROWSER)
 	public handleOpenDefaultBrowser(link: string) {
 		shell.openExternal(link).catch(error => {
+			log.error(error)
 		});
 	}
 
@@ -108,11 +109,11 @@ export class AppController {
 				properties: ['openDirectory']
 			}).then(result => {
 				if (result.canceled) {
-					reject(CommonResult.error('未选择文件夹'))
+					resolve(CommonResult.error('未选择文件夹'))
 				} else {
 					// 判断此文件夹为空
 					if (!FsUtils.isEmptyDir(result.filePaths[0])) {
-						reject(CommonResult.error('文件夹不为空'))
+						resolve(CommonResult.error('文件夹不为空'))
 					}
 					resolve(CommonResult.success(result.filePaths[0]))
 				}

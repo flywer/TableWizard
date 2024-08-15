@@ -13,4 +13,6 @@ export class ProjectApiChannel {
 	static GET_PROJECT_BY_ID = StringUtils.joinPaths(ProjectApiChannel.channelsPrefix, 'getProjectById')
 	// 根据项目路径获取项目数据
 	static GET_PROJECT_DATA = StringUtils.joinPaths(ProjectApiChannel.channelsPrefix, 'getProjectData')
+	// 获取默认项目路径
+	static GET_DEFAULT_PROJECT_PATH = StringUtils.joinPaths(ProjectApiChannel.channelsPrefix, 'getDefaultProjectPath')
 }

@@ -9,15 +9,18 @@ import jsonfile from 'jsonfile';
 import log from "electron-log";
 import {FsUtils} from "@common/utils/FsUtils";
 import {Project} from "@main/entity/Project";
+import {AppConstant} from "@common/constants/app/AppConstant";
 
 @Controller()
 export class ProjectController {
 	constructor(
 		private projectService: ProjectService,
-		private projectFileName = 'project.json', // 项目配置文件名称
-		private subFolders = ['models', 'types', 'scripts', 'templates'] //  子文件夹名称数组
 	) {
 	}
+
+	private PROJECT_DEFAULT_PATH = join(AppConstant.APP_DATA_PATH, 'projects') // 默认项目路径
+	private PROJECT_FILE_NAME = 'project.json' // 项目配置文件名称
+	private subFolders = ['models', 'types', 'scripts', 'templates'] //  子文件夹名称数组
 
 	/**
 	 * 获取项目分页数据
@@ -31,6 +34,11 @@ export class ProjectController {
 			total: result[1],
 			...param
 		})
+	}
+
+	@IpcHandle(ProjectApiChannel.GET_DEFAULT_PROJECT_PATH)
+	async getDefaultProjectPath() {
+		return CommonResult.success(this.PROJECT_DEFAULT_PATH);
 	}
 
 	/**
@@ -97,7 +105,7 @@ export class ProjectController {
 	 **/
 	public async checkProjectFile(project: Project) {
 		// 检查 project.json 文件是否存在，不存在则创建
-		const projectJsonPath = join(project.projectPath, this.projectFileName);
+		const projectJsonPath = join(project.projectPath, this.PROJECT_FILE_NAME);
 		if (!await FsUtils.fileOrFolderExists(projectJsonPath)) {
 			// 文件不存在，创建文件
 			await jsonfile.writeFile(projectJsonPath, project, {spaces: 2});

@@ -30,7 +30,12 @@
 							</n-flex>
 						</n-form-item-gi>
 						<n-form-item-gi label="" path="projectName">
-							<n-input class="text-center" v-model:value="formModel.projectName" placeholder="项目名称"/>
+							<n-input
+								v-model:value="formModel.projectName"
+								class="text-center"
+								placeholder="项目名称"
+								@update:value="handleProjectNameUpdate"
+							/>
 						</n-form-item-gi>
 						<n-form-item-gi label="" path="description">
 							<n-input type="textarea" v-model:value="formModel.description" placeholder="项目描述"/>
@@ -60,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import {reactive, ref, watch} from "vue";
+import {onMounted, reactive, ref, watch} from "vue";
 import {FormInst} from "naive-ui";
 import {ProjectApi} from "@render/api/ProjectApi";
 import {v4 as uuidv4} from 'uuid';
@@ -87,13 +92,9 @@ const emit = defineEmits(['update:show', 'update:saveFlag'])
 const _show = ref(false)
 
 watch(() => props.show, async (v) => {
-	if (!v) {
-		_show.value = v
-		forModelInit()
-	} else {
-		handleChangeIcon()
-		_show.value = v
-	}
+	await forModelInit()
+	handleChangeIcon()
+	_show.value = v
 })
 watch(_show, async (v) => {
 	emit('update:show', v)
@@ -122,12 +123,15 @@ const formRules = reactive({
 
 const isSaving = ref(false)
 
-const forModelInit = () => {
+const defaultProjectPath = ref('')
+
+const forModelInit = async () => {
 	formModel = reactive({
 		projectName: null,
 		description: null,
-		projectPath: null
+		projectPath: await ProjectApi.getDefaultProjectPath(),
 	})
+
 }
 
 const handleCreate = () => {
@@ -161,6 +165,19 @@ const handleSetupPath = () => {
 		formModel.projectPath = res
 	})
 }
+
+const handleProjectNameUpdate = (v: string) => {
+	// formModel.projectPath包含默认路径
+	if (formModel.projectPath.includes(defaultProjectPath.value)) {
+		formModel.projectPath = defaultProjectPath.value + '/' + v
+	}else {
+		formModel.projectPath = formModel.projectPath + '/' + v
+	}
+}
+
+onMounted(async () => {
+	defaultProjectPath.value = await ProjectApi.getDefaultProjectPath()
+})
 </script>
 
 <style scoped lang="less">
