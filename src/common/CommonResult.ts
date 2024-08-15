@@ -16,7 +16,7 @@ export default class CommonResult<T> {
 		return new CommonResult<T>(GlobalErrorCodeConstants.SUCCESS().getCode(), data, "");
 	}
 
-	static error<T>(code: number, message: string): CommonResult<T> {
-		return new CommonResult<T>(code, null, message);
+	static error<T>(message: string, code?: number): CommonResult<T> {
+		return new CommonResult<T>(code ? code : 400, null, message);
 	}
 }

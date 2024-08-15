@@ -1,4 +1,5 @@
 import {getCurrentInstance, onUnmounted, toRaw} from 'vue'
+import CommonResult from "@common/CommonResult";
 
 // @ts-ignore
 const {ipcRenderer} = window
@@ -9,18 +10,31 @@ interface IpcInstance {
 }
 
 // 拦截响应
-const interceptResponse = <T>(response: T): T => {
-	if (response && (response as any).code !== 0) {
-		// window.$message.error(`Code: ${(response as any).code}, Message: ${(response as any).message}`)
+const interceptResponse = <T>(response: T): any => {
+	//CommonResult 包装，主要是逐渐统一返回格式
+	// 判断response是否有code、data、message属性，如果有则认为是CommonResult
+	if (response && (response as any).code !== undefined && (response as any).data !== undefined && (response as any).message !== undefined) {
+		const result = response as CommonResult<T>
+
+		if (result.code !== 0) {
+			window.$message.error(result.message)
+		}
+		return result.data
+	} else {
+		return response
 	}
-	return response
 }
 
 export const ipcInstance: IpcInstance = {
 	send: async <T = any>(target: { toString: () => string }, ...args: any[]) => {
 		const payloads: any[] = args.map(e => toRaw(e))
-		const response = await ipcRenderer.invoke(target.toString(), ...payloads)
-		return interceptResponse(response)
+		return new Promise((resolve, reject) => {
+			ipcRenderer.invoke(target.toString(), ...payloads).then((response) => {
+				resolve(interceptResponse(response))
+			}).catch((e) => {
+				window.$message.error(e.message)
+			})
+		})
 	},
 	on: (event, callback) => {
 		ipcRenderer.on(event.toString(), (e, ...args) => {

@@ -1,19 +1,20 @@
-import { app } from 'electron'
-import { AppController } from './controller/app/AppController'
-import { createMainWindow } from './window/mainWindow'
-import { WindowController } from "@main/controller/app/WindowController";
-import { WindowManager } from "@main/framework/windowManager/WindowManager";
-import { AppLog } from "@main/app/AppLog";
-import { AppConstant } from "@common/constants/app/AppConstant";
-import { LocalCacheSource } from "@main/dataSource/LocalCacheSource";
+import {app} from 'electron'
+import {AppController} from './controller/app/AppController'
+import {createMainWindow} from './window/mainWindow'
+import {WindowController} from "@main/controller/app/WindowController";
+import {WindowManager} from "@main/framework/windowManager/WindowManager";
+import {AppLog} from "@main/app/AppLog";
+import {AppConstant} from "@common/constants/app/AppConstant";
+import {LocalCacheSource} from "@main/dataSource/LocalCacheSource";
 import log from 'electron-log/main'
-import { AppSettingsController } from "@main/controller/app/AppSettingsController";
-import { AppSettings } from "@main/entity/app/AppSettings";
-import { AppSettingsConstant } from "@common/constants/app/AppSettingsConstant";
-import { AppTray } from "@main/app/AppTray";
-import { AppNotificationController } from "@main/controller/app/AppNotificationController";
+import {AppSettingsController} from "@main/controller/app/AppSettingsController";
+import {AppSettings} from "@main/entity/app/AppSettings";
+import {AppSettingsConstant} from "@common/constants/app/AppSettingsConstant";
+import {AppTray} from "@main/app/AppTray";
+import {AppNotificationController} from "@main/controller/app/AppNotificationController";
 import {ProjectController} from "@main/controller/ProjectController";
 import {ServiceSource} from "@main/dataSource/ServiceSource";
+import {AppConfig} from "@main/app/AppConfig";
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 process.env.TZ = 'Asia/Shanghai'; // 设置环境变量为中国时区
@@ -28,15 +29,18 @@ async function electronAppInit() {
 	// 应用日志模块初始化
 	AppLog.appLogInit()
 
+	// 应用配置模块初始化
+	AppConfig.appConfigInit()
+
 	LocalCacheSource.initialize().then(async () => {
 		// 开启应用系统托盘
-		const enableTray = await LocalCacheSource.getRepository(AppSettings).findOneBy({ settingName: AppSettingsConstant.ENABLE_TRAY })
+		const enableTray = await LocalCacheSource.getRepository(AppSettings).findOneBy({settingName: AppSettingsConstant.ENABLE_TRAY})
 		if (enableTray && enableTray.settingValue == 'true') {
 			AppTray.trayInit()
 		}
 
 		// 开启硬件加速
-		const value = await LocalCacheSource.getRepository(AppSettings).findOneBy({ settingName: AppSettingsConstant.HARDWARE_ACCELERATION })
+		const value = await LocalCacheSource.getRepository(AppSettings).findOneBy({settingName: AppSettingsConstant.HARDWARE_ACCELERATION})
 		if (value && value.settingValue == 'false') {
 			app.disableHardwareAcceleration()
 		}

@@ -73,7 +73,7 @@ export class AppLog {
 
             // 覆写console
             Object.assign(console, log.functions);
-            log.scope('logger').info('日志模块初始化成功')
+            log.scope('AppLog').info('日志模块初始化成功')
         } catch (e) {
             log.error("日志模块初始化异常", e)
         }

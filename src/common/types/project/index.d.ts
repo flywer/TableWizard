@@ -2,6 +2,7 @@ declare interface CreateProjectReqVO {
 	projectName: string
 	description: string
 	icon: string
+	projectPath: string
 }
 
 declare interface Entity {

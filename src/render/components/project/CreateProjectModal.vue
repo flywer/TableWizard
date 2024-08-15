@@ -26,7 +26,7 @@
 					<n-grid :cols="1" :x-gap="4">
 						<n-form-item-gi label="" path="projectName">
 							<n-flex justify="center" class="w-full">
-								<n-image :src="pngIcon"/>
+								<n-image :src="pngIcon" @click="handleChangeIcon" preview-disabled/>
 							</n-flex>
 						</n-form-item-gi>
 						<n-form-item-gi label="" path="projectName">
@@ -34,6 +34,18 @@
 						</n-form-item-gi>
 						<n-form-item-gi label="" path="description">
 							<n-input type="textarea" v-model:value="formModel.description" placeholder="项目描述"/>
+						</n-form-item-gi>
+						<n-form-item-gi label="" path="projectPath">
+							<n-input v-model:value="formModel.projectPath" placeholder="项目路径">
+								<template #suffix>
+									<n-button text @click.stop="handleSetupPath">
+										<template #icon>
+											<div class="i-material-symbols:folder-outline"/>
+										</template>
+									</n-button>
+
+								</template>
+							</n-input>
 						</n-form-item-gi>
 					</n-grid>
 				</n-form>
@@ -48,10 +60,11 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, reactive, ref, watch} from "vue";
+import {reactive, ref, watch} from "vue";
 import {FormInst} from "naive-ui";
 import {ProjectApi} from "@render/api/ProjectApi";
-import {random} from "lodash-es";
+import {v4 as uuidv4} from 'uuid';
+import {AppApi} from "@render/api/app/AppApi";
 
 const props = defineProps({
 	show: {
@@ -91,13 +104,19 @@ const pngIcon = ref('');
 const formRef = ref<FormInst | null>(null);
 let formModel = reactive({
 	projectName: null,
-	description: null
+	description: null,
+	projectPath: null
 })
 const formRules = reactive({
 	projectName: {
 		required: true,
 		trigger: ['input'],
 		message: '项目名称不能为空'
+	},
+	projectPath: {
+		required: true,
+		trigger: ['input'],
+		message: '项目路径不能为空'
 	}
 })
 
@@ -106,7 +125,8 @@ const isSaving = ref(false)
 const forModelInit = () => {
 	formModel = reactive({
 		projectName: null,
-		description: null
+		description: null,
+		projectPath: null
 	})
 }
 
@@ -117,7 +137,8 @@ const handleCreate = () => {
 			ProjectApi.createProject({
 				projectName: formModel.projectName,
 				description: formModel.description,
-				icon: pngIcon.value
+				icon: pngIcon.value,
+				projectPath: formModel.projectPath
 			})
 				.then((res) => {
 					emit('update:saveFlag', true)
@@ -130,8 +151,14 @@ const handleCreate = () => {
 }
 
 const handleChangeIcon = () => {
-	ProjectApi.createIcon(random(0, 10000).toString(), 100).then(res => {
-		pngIcon.value = `data:image/png;base64,${res.data}`
+	ProjectApi.createIcon(uuidv4(), 100).then(res => {
+		pngIcon.value = `data:image/png;base64,${res}`
+	})
+}
+
+const handleSetupPath = () => {
+	AppApi.selectFolderPath().then(res => {
+		formModel.projectPath = res
 	})
 }
 </script>

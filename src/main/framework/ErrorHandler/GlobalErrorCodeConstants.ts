@@ -5,6 +5,8 @@ import ErrorCode from "@main/framework/ErrorHandler/ErrorCode";
  **/
 export const GlobalErrorCodeConstants = {
     SUCCESS: () => new ErrorCode(0, "成功")
+
+
 }
 
 export default GlobalErrorCodeConstants;

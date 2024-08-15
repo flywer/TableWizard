@@ -42,6 +42,11 @@
 								</template>
 								<template #action>
 									<n-flex justify="end" class="mt-6" :size="2">
+										<n-button quaternary size="tiny" @click.stop="handleOpenPath(project.projectPath)">
+											<template #icon>
+												<div class="i-material-symbols:folder-managed-outline-rounded"/>
+											</template>
+										</n-button>
 										<n-button quaternary size="tiny" @click.stop="handleEdit">
 											<template #icon>
 												<div class="i-tabler:pencil-minus"/>
@@ -75,6 +80,7 @@ import {onMounted, reactive, watch} from "vue";
 import {ProjectApi} from "@render/api/ProjectApi";
 import {Project} from "@main/entity/Project";
 import {useTopMenuStore} from "@render/stores/useTopMenu";
+import {AppApi} from "@render/api/app/AppApi";
 
 defineOptions({name: "Home"})
 
@@ -102,8 +108,8 @@ const handleCreate = () => {
 
 const projectListLoad = () => {
 	ProjectApi.getProjectPage(pageParams).then(res => {
-		projectList.push(...res.data.data)
-		pageParams.count = res.data.total
+		projectList.push(...res.data)
+		pageParams.count = res.total
 	})
 }
 
@@ -120,6 +126,10 @@ const handleEdit = () => {
 }
 
 const handleDelete = () => {
+}
+
+const handleOpenPath = (path: string) => {
+	AppApi.openPath(path)
 }
 
 watch(() => createProjectModalOpt.saveFlag, async (newValue) => {

@@ -2,6 +2,7 @@ import {defineStore} from "pinia";
 import {router} from "@render/router";
 import {RouteName} from "@common/constants/app/RouteName";
 import {GroupMenuOptionType} from "@render/components/GroupMenu/types";
+import {ProjectApi} from "@render/api/ProjectApi";
 
 export interface TabPanel {
 	key: string // tabPanel的key
@@ -25,10 +26,15 @@ export interface ProjectState {
 	modelTabPanels: ModelTabPanel[] // 记录modelManager的tabPanel
 }
 
+export interface ProjectData {
+
+}
+
 export const useProjectPageStore = defineStore({
 	id: 'projectPage',
 	state: () => ({
 		projectStateMap: new Map<number, ProjectState>(), // 记录每个project的状态
+		projectDataMap: new Map<number, ProjectData>(), // 记录每个project的数据信息
 	}),
 	actions: {
 		removeItem(projectId: number) {
@@ -48,6 +54,12 @@ export const useProjectPageStore = defineStore({
 				modelTabPanels: state ? state.modelTabPanels : []
 			})
 			return this.projectStateMap.get(projectId)
+		},
+		// 根据项目路径初始化项目数据
+		async initProjectData(projectPath: string) {
+			// TODO
+			const project = await ProjectApi.getProjectData(projectPath)
+			console.log(project)
 		},
 		// 最左侧菜单点击事件
 		async siderMenuRouteTo(projectId: number) {

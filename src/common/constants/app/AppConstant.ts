@@ -3,7 +3,7 @@ import os from "node:os";
 
 export class AppConstant {
     // 应用名称
-    static readonly APP_NAME = "ElectronAppTemplate"
+    static readonly APP_NAME = "TableWizard"
 
     // 系统盘应用存储位置
     static readonly APP_DATA_PATH = join(os.homedir(), `/AppData/Local/${this.APP_NAME}`)

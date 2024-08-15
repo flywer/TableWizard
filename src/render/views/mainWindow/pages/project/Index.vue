@@ -45,14 +45,11 @@ const isLoading = ref(false)
 // 因路由跳转,更新当前项目ID
 watch(projectId, async (value) => {
 	if (value) {
-		project.value = (await ProjectApi.getProjectById(toNumber(value))).data
+		project.value = (await ProjectApi.getProjectById(toNumber(value)))
 		if (project.value) {
-			console.log(useProjectPage.projectStateMap.has(projectId.value))
 			if (!useProjectPage.projectStateMap.has(projectId.value)) {
-				console.log('init')
 				useProjectPage.initProjectState(projectId.value)
-				console.log(projectId.value)
-				console.log(useProjectPage.projectStateMap.get(projectId.value))
+				await useProjectPage.initProjectData(project.value.projectPath)
 			}
 			await useProjectPage.siderMenuRouteTo(project.value.id)
 		}
@@ -61,10 +58,11 @@ watch(projectId, async (value) => {
 
 onMounted(async () => {
 	isLoading.value = true
-	project.value = (await ProjectApi.getProjectById(projectId.value)).data
+	project.value = (await ProjectApi.getProjectById(projectId.value))
 	if (project.value) {
 		if (!useProjectPage.projectStateMap.has(projectId.value)) {
 			useProjectPage.initProjectState(projectId.value)
+			await useProjectPage.initProjectData(project.value.projectPath)
 		}
 		await useProjectPage.siderMenuRouteTo(project.value.id)
 	}
