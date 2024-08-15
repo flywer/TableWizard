@@ -26,10 +26,6 @@ export interface ProjectState {
 	modelTabPanels: ModelTabPanel[] // 记录modelManager的tabPanel
 }
 
-export interface ProjectData {
-
-}
-
 export const useProjectPageStore = defineStore({
 	id: 'projectPage',
 	state: () => ({
@@ -56,10 +52,9 @@ export const useProjectPageStore = defineStore({
 			return this.projectStateMap.get(projectId)
 		},
 		// 根据项目路径初始化项目数据
-		async initProjectData(projectPath: string) {
-			// TODO
-			const project = await ProjectApi.getProjectData(projectPath)
-			console.log(project)
+		async initProjectData(projectId: number) {
+			const projectData = await ProjectApi.getProjectData(projectId)
+			console.log(projectData)
 		},
 		// 最左侧菜单点击事件
 		async siderMenuRouteTo(projectId: number) {

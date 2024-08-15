@@ -18,6 +18,7 @@
 	"engines": {
 		"node": "18.12.1"
 	},
+	"packageManager": "npm@8.19.2",
 	"dependencies": {
 		"@types/uuid": "^9.0.8",
 		"animate.css": "^4.1.1",
@@ -32,7 +33,7 @@
 		"pinia-plugin-persistedstate": "^3.2.1",
 		"prebuild-install": "^7.1.2",
 		"reflect-metadata": "0.2.1",
-		"sqlite3": "5.1.7",
+		"sqlite3": "5.1.6",
 		"typeorm": "0.3.20",
 		"uuid": "^9.0.1",
 		"vue": "^3.4.19"

@@ -16,15 +16,11 @@ export class ProjectApi {
 		return ipcInstance.send(ProjectApiChannel.CREATE_ICON, value, size)
 	}
 
-	static updateIconSize(size: number) {
-		return ipcInstance.send(ProjectApiChannel.UPDATE_ICON_SIZE, size)
+	static getProjectById(projectId: number): Promise<Project> {
+		return ipcInstance.send(ProjectApiChannel.GET_PROJECT_BY_ID, projectId)
 	}
 
-	static getProjectById(id: number): Promise<Project> {
-		return ipcInstance.send(ProjectApiChannel.GET_PROJECT_BY_ID, id)
-	}
-
-	static getProjectData(path: string) {
-		return ipcInstance.send(ProjectApiChannel.GET_PROJECT_DATA, path)
+	static getProjectData(projectId: number): Promise<ProjectData> {
+		return ipcInstance.send(ProjectApiChannel.GET_PROJECT_DATA, projectId)
 	}
 }

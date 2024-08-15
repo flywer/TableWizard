@@ -13,38 +13,15 @@ import {Project} from "@main/entity/Project";
 @Controller()
 export class ProjectController {
 	constructor(
-		private projectService: ProjectService
+		private projectService: ProjectService,
+		private projectFileName = 'project.json', // 项目配置文件名称
+		private subFolders = ['models', 'types', 'scripts', 'templates'] //  子文件夹名称数组
 	) {
 	}
 
-	@IpcHandle(ProjectApiChannel.CREATE_PROJECT)
-	async createProject(vo: CreateProjectReqVO) {
-		const project = await this.projectService.createProject(vo);
-
-		// 在目录下创建基础文件和文件夹
-		// 创建项目文件夹
-		await fs.mkdir(project.projectPath, {recursive: true});
-
-		// 创建 project.json 文件
-		const projectJsonPath = join(project.projectPath, 'project.json');
-		const projectJson = {
-			name: project.projectName,
-			// 添加其他需要的 project.json 信息
-		};
-		await jsonfile.writeFile(projectJsonPath, projectJson, {spaces: 2});
-
-		// 创建子文件夹
-		const subFolders = ['models', 'types', 'scripts', 'templates']; //  子文件夹名称数组
-		for (const folderName of subFolders) {
-			const folderPath = join(project.projectPath, folderName);
-			await fs.mkdir(folderPath);
-		}
-
-		log.info(`创建项目成功，项目路径：${project.projectPath}`);
-
-		return CommonResult.success(project)
-	}
-
+	/**
+	 * 获取项目分页数据
+	 **/
 	@IpcHandle(ProjectApiChannel.GET_PROJECT_PAGE)
 	async getProjectPage(param: PagedParam<string>) {
 		const result = await this.projectService.getProjectPage(param);
@@ -56,6 +33,27 @@ export class ProjectController {
 		})
 	}
 
+	/**
+	 * 创建项目
+	 **/
+	@IpcHandle(ProjectApiChannel.CREATE_PROJECT)
+	async createProject(vo: CreateProjectReqVO) {
+		const project = await this.projectService.createProject(vo);
+
+		// 创建项目文件夹
+		await fs.mkdir(project.projectPath, {recursive: true});
+
+		await this.checkProjectFile(project);
+		await this.checkFolders(project.projectPath);
+
+		log.info(`创建项目成功，项目路径：${project.projectPath}`);
+
+		return CommonResult.success(project)
+	}
+
+	/**
+	 * 创建图标
+	 **/
 	@IpcHandle(ProjectApiChannel.CREATE_ICON)
 	createIcon(value: string, size: number) {
 		const buffer = jdenticon.toPng(value, size);
@@ -63,12 +61,9 @@ export class ProjectController {
 		return CommonResult.success(base64)
 	}
 
-	@IpcHandle(ProjectApiChannel.UPDATE_ICON_SIZE)
-	updateIconSize(size: number) {
-		jdenticon.update('canvas', size);
-		return CommonResult.success(null)
-	}
-
+	/**
+	 * 根据id获取项目
+	 **/
 	@IpcHandle(ProjectApiChannel.GET_PROJECT_BY_ID)
 	async getProjectById(id: number) {
 		const project = await this.projectService.getProjectById(id);
@@ -85,17 +80,11 @@ export class ProjectController {
 
 		await this.checkProjectFile(project);
 
-		await this.checkModelsFolder(project.projectPath);
-
-		const modelsFolderPath = join(project.projectPath, 'models');
-
-		// 获取 models 文件夹下的所有文件列表
-		const modelFiles = await fs.readdir(modelsFolderPath);
+		await this.checkFolders(project.projectPath);
 
 		// 构建项目信息对象
-		const projectInfo = {
-			//...projectData,
-			models: modelFiles
+		const projectInfo: ProjectData = {
+			models: (await this.getModelsData(project.projectPath)).data,
 		};
 
 		log.info(projectInfo);
@@ -108,7 +97,7 @@ export class ProjectController {
 	 **/
 	public async checkProjectFile(project: Project) {
 		// 检查 project.json 文件是否存在，不存在则创建
-		const projectJsonPath = join(project.projectPath, 'project.json');
+		const projectJsonPath = join(project.projectPath, this.projectFileName);
 		if (!await FsUtils.fileOrFolderExists(projectJsonPath)) {
 			// 文件不存在，创建文件
 			await jsonfile.writeFile(projectJsonPath, project, {spaces: 2});
@@ -116,14 +105,39 @@ export class ProjectController {
 	}
 
 	/**
-	 * 检查 models 文件夹是否存在，不存在则创建
+	 * 检查子文件夹是否存在，不存在则创建
 	 **/
-	public async checkModelsFolder(projectPath: string) {
-		// 检查 models 文件夹是否存在，不存在则创建
-		const modelsFolderPath = join(projectPath, 'models');
-		if (!await FsUtils.fileOrFolderExists(modelsFolderPath)) {
-			// 文件夹不存在，创建文件夹
-			await fs.mkdir(modelsFolderPath);
+	public async checkFolders(projectPath: string) {
+		for (const folderName of this.subFolders) {
+			const folderPath = join(projectPath, folderName);
+			if (!await FsUtils.fileOrFolderExists(folderPath)) {
+				// 文件夹不存在，创建文件夹
+				await fs.mkdir(folderPath);
+			}
+		}
+	}
+
+	/**
+	 * 获取 models 数据
+	 **/
+	public async getModelsData(projectPath: string): Promise<CommonResult<any[]>> {
+		try {
+			const modelsFolderPath = join(projectPath, 'models');
+			const modelFiles = await fs.readdir(modelsFolderPath);
+			const modelsData = [];
+
+			for (const file of modelFiles) {
+				if (file.endsWith('.json')) {
+					const filePath = join(modelsFolderPath, file);
+					const modelData = await jsonfile.readFile(filePath);
+					modelsData.push(modelData);
+				}
+			}
+
+			return CommonResult.success(modelsData);
+		} catch (error) {
+			log.error(`获取 models 数据失败: ${error.message}`);
+			return CommonResult.error(error.message);
 		}
 	}
 }

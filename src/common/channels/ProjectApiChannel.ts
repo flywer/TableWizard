@@ -9,8 +9,6 @@ export class ProjectApiChannel {
 	static readonly CREATE_PROJECT = StringUtils.joinPaths(ProjectApiChannel.channelsPrefix, 'createProject')
 	// 创建图标
 	static CREATE_ICON = StringUtils.joinPaths(ProjectApiChannel.channelsPrefix, 'createIcon')
-	// 更新图标
-	static UPDATE_ICON_SIZE = StringUtils.joinPaths(ProjectApiChannel.channelsPrefix, 'updateIconSize')
 	// 根据id获取项目
 	static GET_PROJECT_BY_ID = StringUtils.joinPaths(ProjectApiChannel.channelsPrefix, 'getProjectById')
 	// 根据项目路径获取项目数据

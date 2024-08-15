@@ -5,6 +5,10 @@ declare interface CreateProjectReqVO {
 	projectPath: string
 }
 
+declare interface ProjectData {
+	models: any[]
+}
+
 declare interface Entity {
 	name: string; // 表名
 	comment?: string; // 表注释

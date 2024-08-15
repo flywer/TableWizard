@@ -49,7 +49,7 @@ watch(projectId, async (value) => {
 		if (project.value) {
 			if (!useProjectPage.projectStateMap.has(projectId.value)) {
 				useProjectPage.initProjectState(projectId.value)
-				await useProjectPage.initProjectData(project.value.projectPath)
+				await useProjectPage.initProjectData(projectId.value)
 			}
 			await useProjectPage.siderMenuRouteTo(project.value.id)
 		}
@@ -62,7 +62,7 @@ onMounted(async () => {
 	if (project.value) {
 		if (!useProjectPage.projectStateMap.has(projectId.value)) {
 			useProjectPage.initProjectState(projectId.value)
-			await useProjectPage.initProjectData(project.value.projectPath)
+			await useProjectPage.initProjectData(projectId.value)
 		}
 		await useProjectPage.siderMenuRouteTo(project.value.id)
 	}
