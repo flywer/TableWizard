@@ -128,17 +128,52 @@ export class ProjectController {
 	/**
 	 * 获取 models 数据
 	 **/
-	public async getModelsData(projectPath: string): Promise<CommonResult<any[]>> {
+	public async getModelsData(projectPath: string): Promise<CommonResult<any>> {
 		try {
 			const modelsFolderPath = join(projectPath, 'models');
-			const modelFiles = await fs.readdir(modelsFolderPath);
-			const modelsData = [];
+			const modelSubFolders = ['datatable']
+			const modelsData: Record<string, ModelTreeData> = {}; // 使用 Record 类型定义 modelsData 结构
 
-			for (const file of modelFiles) {
-				if (file.endsWith('.json')) {
-					const filePath = join(modelsFolderPath, file);
-					const modelData = await jsonfile.readFile(filePath);
-					modelsData.push(modelData);
+			for (const subFolder of modelSubFolders) {
+				// 初始化 modelsData 中的子文件夹数组
+				modelsData[subFolder] = {
+					data: [],
+					treeRelation: null
+				};
+
+				// 构建子文件夹路径
+				const subFolderPath = join(modelsFolderPath, subFolder);
+
+				try {
+					// 检查子文件夹是否存在
+					await fs.access(subFolderPath);
+
+					// 定义递归读取函数
+					const readModelsData = async (folderPath: string) => {
+						const files = await fs.readdir(folderPath);
+						for (const file of files) {
+							const filePath = join(folderPath, file);
+							const stat = await fs.stat(filePath);
+							if (stat.isDirectory()) {
+								// 如果是文件夹，递归读取
+								// await readModelsData(filePath);
+							} else if (file === 'treeRelation.json') {
+								// 读取 treeRelation.json
+								// ... 根据 treeConfigData 中的结构读取数据文件，并将数据添加到 modelsData[subFolder] 中
+								modelsData[subFolder].treeRelation = await jsonfile.readFile(filePath);
+							} else if (file.endsWith('.json')) {
+								// 如果是其他 json 文件，直接读取数据
+								const modelData = await jsonfile.readFile(filePath);
+								modelsData[subFolder].data.push(modelData);
+							}
+						}
+					};
+
+					// 从子文件夹开始递归读取
+					await readModelsData(subFolderPath);
+				} catch (err) {
+					// 子文件夹不存在，跳过
+					console.warn(`子文件夹 ${subFolder} 不存在`);
 				}
 			}
 

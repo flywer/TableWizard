@@ -54,7 +54,7 @@ export const useProjectPageStore = defineStore({
 		// 根据项目路径初始化项目数据
 		async initProjectData(projectId: number) {
 			const projectData = await ProjectApi.getProjectData(projectId)
-			console.log(projectData)
+			this.projectDataMap.set(projectId, projectData)
 		},
 		// 最左侧菜单点击事件
 		async siderMenuRouteTo(projectId: number) {

@@ -102,7 +102,7 @@ const createProjectModalOpt = reactive({
 })
 
 const handleCreate = () => {
-	createProjectModalOpt.show = true
+	createProjectModalOpt.show = !createProjectModalOpt.show
 	createProjectModalOpt.saveFlag = false
 }
 

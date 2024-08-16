@@ -34,23 +34,21 @@
 								v-model:value="formModel.projectName"
 								class="text-center"
 								placeholder="项目名称"
-								@update:value="handleProjectNameUpdate"
 							/>
 						</n-form-item-gi>
-						<n-form-item-gi label="" path="description">
-							<n-input type="textarea" v-model:value="formModel.description" placeholder="项目描述"/>
-						</n-form-item-gi>
 						<n-form-item-gi label="" path="projectPath">
-							<n-input v-model:value="formModel.projectPath" placeholder="项目路径">
+							<n-input v-model:value="formModel.projectPath" class="text-xs" placeholder="项目路径">
 								<template #suffix>
 									<n-button text @click.stop="handleSetupPath">
 										<template #icon>
 											<div class="i-material-symbols:folder-outline"/>
 										</template>
 									</n-button>
-
 								</template>
 							</n-input>
+						</n-form-item-gi>
+						<n-form-item-gi label="" path="description">
+							<n-input type="textarea" v-model:value="formModel.description" placeholder="项目描述"/>
 						</n-form-item-gi>
 					</n-grid>
 				</n-form>
@@ -103,7 +101,7 @@ watch(_show, async (v) => {
 const pngIcon = ref('');
 
 const formRef = ref<FormInst | null>(null);
-let formModel = reactive({
+const formModel = reactive({
 	projectName: null,
 	description: null,
 	projectPath: null
@@ -123,15 +121,13 @@ const formRules = reactive({
 
 const isSaving = ref(false)
 
+// 默认项目路径
 const defaultProjectPath = ref('')
 
 const forModelInit = async () => {
-	formModel = reactive({
-		projectName: null,
-		description: null,
-		projectPath: await ProjectApi.getDefaultProjectPath(),
-	})
-
+	formModel.projectName = 'untitled'
+	formModel.description = null
+	formModel.projectPath = defaultProjectPath.value
 }
 
 const handleCreate = () => {
@@ -162,22 +158,15 @@ const handleChangeIcon = () => {
 
 const handleSetupPath = () => {
 	AppApi.selectFolderPath().then(res => {
+		console.log(res)
 		formModel.projectPath = res
 	})
-}
-
-const handleProjectNameUpdate = (v: string) => {
-	// formModel.projectPath包含默认路径
-	if (formModel.projectPath.includes(defaultProjectPath.value)) {
-		formModel.projectPath = defaultProjectPath.value + '/' + v
-	}else {
-		formModel.projectPath = formModel.projectPath + '/' + v
-	}
 }
 
 onMounted(async () => {
 	defaultProjectPath.value = await ProjectApi.getDefaultProjectPath()
 })
+
 </script>
 
 <style scoped lang="less">

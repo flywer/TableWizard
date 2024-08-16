@@ -8,7 +8,7 @@
       default-size="200px"
   >
     <template #1>
-      <ModelTree :projectId="projectId" class="relative top-2 left-2 right-4"/>
+      <ModelManagerMenu :projectId="projectId" class="relative top-2 left-2 right-4"/>
     </template>
     <template #2>
       <div class="relative top-2 left-2 right-4 bottom-2 w-full pr-3">
@@ -28,7 +28,7 @@
                       :name="panel.key">
             <template #tab>
               <n-flex :size="6" class="justify-center items-center select-none">
-                <n-tag :bordered="false" type="info" size="small">
+                <n-tag v-if="panel.tag" :bordered="false" type="info" size="small">
                   {{ panel.tag }}
                 </n-tag>
                 <n-text class="text-xs">{{ panel.label }}</n-text>
@@ -70,7 +70,7 @@
 import {useRoute} from "vue-router";
 import {computed} from "vue";
 import {useProjectPageStore} from "@render/stores/useProjectPage";
-import ModelTree from "@render/components/project/modelManager/ModelManagerMenu.vue";
+import ModelManagerMenu from "@render/components/project/modelManager/ModelManagerMenu.vue";
 import ModelOverview from "@render/components/project/modelManager/tabPanel/ModelOverview.vue";
 import DataTableModel from "@render/components/project/modelManager/tabPanel/DataTableModel.vue";
 
