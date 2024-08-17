@@ -2,7 +2,7 @@
  * @see https://www.electron.build/configuration/configuration
  */
 const config = {
-    productName: 'Electron App Template',
+    productName: 'TableWizard',
     // copyright: "v0.1.0", //应用版本
     directories: {
         output: 'dist/electron', // 构建后保存的位置
