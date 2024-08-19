@@ -111,7 +111,7 @@ import {DataTableColumns, FormInst, NButton, NCheckbox, NFlex, NInput, NText, us
 import {v4 as uuidv4} from 'uuid';
 import TableSelect from "@render/components/project/modelManager/tableInputer/TableSelect.vue";
 import {useRefHistory} from "@vueuse/core";
-import {ModelOptions} from "@render/stores/useModelManager";
+import {ModelOptions, useModelManagerStore} from "@render/stores/useModelManager";
 import TableDataInput from "@render/components/project/modelManager/tableInputer/TableDataInput.vue";
 import TableDataNumberInput from "@render/components/project/modelManager/tableInputer/TableDataNumberInput.vue";
 import {ModelApi} from "@render/api/ModelApi";
@@ -126,6 +126,8 @@ const props = defineProps({
     required: true,
   }
 })
+
+const useModelManager = useModelManagerStore()
 
 const datatable = ref<SaveDataTableVO>()
 
@@ -465,15 +467,11 @@ const handleSave = () => {
     }
     ModelApi.saveDatatable(vo).then(() => {
       window.$message.success('保存成功')
+			useModelManager.menuOptionInit(props.projectId)
+			useModelManager.updateTabPanelLabel(props.projectId, props.modelOptions.id, formModel.tableName)
     })
   })
 }
-
-
-/*watch(fields, (value) => {
-  // 每次更新表单都会触发校验
-  fieldNameRepeatIds.value = checkFieldNameRepeat(value);
-}, {deep: true})*/
 
 watch(datatable, () => {
   if (datatable.value) {

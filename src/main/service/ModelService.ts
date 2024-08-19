@@ -1,8 +1,8 @@
 import {Injectable} from "@main/framework/windowManager/decorators";
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
-import fs from "fs";
 import {join} from "path";
 import jsonfile from "jsonfile";
+import fs from "fs-extra";
 
 @Injectable()
 export class ModelService {

@@ -8,7 +8,7 @@ export class ModelApiChannel {
 	static readonly GET_MODELS = StringUtils.joinPaths(ModelApiChannel.channelsPrefix, 'getModels')
 	// 创建数据表
 	static SAVE_DATATABLE = StringUtils.joinPaths(ModelApiChannel.channelsPrefix, 'saveDataTable')
-    static GET_DATATABLES = StringUtils.joinPaths(ModelApiChannel.channelsPrefix, 'getDataTables')
+	static GET_DATATABLES = StringUtils.joinPaths(ModelApiChannel.channelsPrefix, 'getDataTables')
 	static GET_DATATABLE = StringUtils.joinPaths(ModelApiChannel.channelsPrefix, 'getDataTable')
 	static GET_DATATABLE_MENU = StringUtils.joinPaths(ModelApiChannel.channelsPrefix, 'getDataTableMenu')
 }
