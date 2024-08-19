@@ -2,7 +2,7 @@
 	<div>
 		<n-card :bordered="false" size="small" class="mb-1 select-none pl-2 pr-2" :content-style="{padding:'4px'}">
 			<n-flex justify="end">
-				<n-button type="primary">
+				<n-button type="primary" @click="handleSave">
 					保 存
 				</n-button>
 			</n-flex>
@@ -16,10 +16,10 @@
 					:size="'small'"
 				>
 					<n-grid :cols="2" :x-gap="4">
-						<n-form-item-gi label="表名称">
+						<n-form-item-gi label="表名称" path="tableName">
 							<n-input v-model:value="formModel.tableName" placeholder="表名称" size="small"/>
 						</n-form-item-gi>
-						<n-form-item-gi label="表注释">
+						<n-form-item-gi label="表注释" path="tableComment">
 							<n-input v-model:value="formModel.tableComment" placeholder="表注释" size="small"/>
 						</n-form-item-gi>
 					</n-grid>
@@ -38,7 +38,7 @@
 							<component
 								:is="tableButton({
 									iconClassName: 'i-material-symbols:check-indeterminate-small-rounded',
-									disabled: data.length === 0,
+									disabled: fields.length === 0,
 									onClick: () =>handleRemoveRow()
 								})"/>
 							<n-divider vertical/>
@@ -88,24 +88,24 @@
 			<n-data-table
 				id="field-table"
 				v-model:checked-row-keys="checkedRowKeys"
-				:bordered="false"
+				:bordered="true"
 				:single-line="false"
 				:size="'small'"
 				:columns="columns"
-				:data="data"
+				:data="fields"
 				:max-height="550"
 				:scroll-x="1500"
 				:row-key="row => row.id"
 				@update:checked-row-keys="handleCheckedRowKeys"
 			/>
-			<pre>{{ JSON.stringify(data, null, 2) }}</pre>
+			{{ modelOptions }}
+			<pre>{{ JSON.stringify(fields, null, 2) }}</pre>
 		</n-scrollbar>
 	</div>
 </template>
 
 <script setup lang="ts">
-import {ModelTabPanel} from "@render/stores/useProjectPage";
-import {h, onMounted, PropType, reactive, ref} from "vue";
+import {h, onMounted, PropType, reactive, ref, watch} from "vue";
 import {
 	DataTableColumns,
 	FormInst,
@@ -120,14 +120,17 @@ import {
 import {v4 as uuidv4} from 'uuid';
 import TableSelect from "@render/components/project/modelManager/tableInputer/TableSelect.vue";
 import {useRefHistory} from "@vueuse/core";
+import {ModelOptions} from "@render/stores/useModelManager";
+import TableDataInput from "@render/components/project/modelManager/tableInputer/TableDataInput.vue";
+import TableDataNumberInput from "@render/components/project/modelManager/tableInputer/TableDataNumberInput.vue";
 
 const props = defineProps({
 	projectId: {
 		type: Number,
 		required: true,
 	},
-	panel: {
-		type: Object as PropType<ModelTabPanel>,
+	modelOptions: {
+		type: Object as PropType<ModelOptions>,
 		required: true,
 	}
 })
@@ -135,20 +138,14 @@ const props = defineProps({
 const formRef = ref<FormInst | null>(null);
 const formModel = reactive({
 	tableName: null,
-	tableComment: null,
-	projectPath: null
+	tableComment: null
 })
 
 const formRules = reactive({
-	projectName: {
+	tableName: {
 		required: true,
 		trigger: ['input'],
-		message: '项目名称不能为空'
-	},
-	projectPath: {
-		required: true,
-		trigger: ['input'],
-		message: '项目路径不能为空'
+		message: '表名不能为空'
 	}
 })
 
@@ -170,10 +167,10 @@ const tableButton = ({iconClassName, onClick, disabled = false}: TableButtonOpti
 const fieldInit = () => {
 	return {
 		id: uuidv4(),
-		defKey: null,
-		defName: null,
-		type: '',
-		length: null,
+		fieldName: '',
+		fieldComment: '',
+		type: 'varchar',
+		length: 255,
 		scale: null,
 		primaryKey: false,
 		notNull: false,
@@ -183,9 +180,9 @@ const fieldInit = () => {
 	}
 }
 
-const data = ref<EntityField[]>([])
+const fields = ref<EntityField[]>([])
 
-const {history, undo, redo, canUndo, canRedo} = useRefHistory(data, {deep: true, capacity: 100})
+const {history, undo, redo, canUndo, canRedo} = useRefHistory(fields, {deep: true, capacity: 100})
 
 const commonTableHeader = (title: string) => {
 	return h(NFlex, {justify: 'center'}, () => [
@@ -205,39 +202,38 @@ const createColumns = (): DataTableColumns<EntityField> => [
 		className: 'selection-column',
 	},
 	{
-		key: 'defKey',
+		key: 'fieldName',
 		title() {
 			return commonTableHeader('字段名称')
 		},
 		render(row, index) {
 			return h("div", {style: {position: "relative"}}, [
 				true ? h("div", {class: "modified-marker"}) : null,
-				h(NText, {
-					class: "row-index pl-3 " + checkedBackgroundClass(row),
-					onClick: () => {
-						console.log('2222')
-					}
-				}, () => index + 1),
-				h(NInput, {
-					value: row.defKey,
+				h(NText, {class: "row-index pl-3 " + checkedBackgroundClass(row)}, () => index + 1),
+				h(TableDataInput, {
+					value: row.fieldName,
 					size: "small",
-					class: checkedBackgroundClass(row),
-					onUpdateValue(v) {
-						data.value[index].defKey = v;
+					validation: {
+						message: "字段名称不能重复",
+						status: checkFieldNameRepeat(fields.value).includes(row.id) ? 'error' : undefined
+					},
+					className: checkedBackgroundClass(row),
+					'onUpdate:value': (v: string) => {
+						fields.value[index].fieldName = v;
 					}
-				})
+				}),
 			])
 		}
 	},
 	{
 		title: '显示名称',
-		key: 'defName',
+		key: 'fieldComment',
 		render(row, index) {
 			return h(NInput, {
-				value: row.defName,
+				value: row.fieldComment,
 				size: 'small',
 				onUpdateValue(v) {
-					data.value[index].defName = v
+					fields.value[index].fieldComment = v
 				}
 			})
 		}
@@ -250,7 +246,7 @@ const createColumns = (): DataTableColumns<EntityField> => [
 				checked: row.primaryKey,
 				size: 'small',
 				onUpdateChecked(v) {
-					data.value[index].primaryKey = v
+					fields.value[index].primaryKey = v
 				}
 			})
 		}
@@ -263,7 +259,7 @@ const createColumns = (): DataTableColumns<EntityField> => [
 				checked: row.notNull,
 				size: 'small',
 				onUpdateChecked(v) {
-					data.value[index].notNull = v
+					fields.value[index].notNull = v
 				}
 			})
 		}
@@ -276,7 +272,7 @@ const createColumns = (): DataTableColumns<EntityField> => [
 				checked: row.autoIncrement,
 				size: 'small',
 				onUpdateChecked(v) {
-					data.value[index].autoIncrement = v
+					fields.value[index].autoIncrement = v
 				}
 			})
 		}
@@ -297,7 +293,7 @@ const createColumns = (): DataTableColumns<EntityField> => [
 				],
 				size: 'small',
 				onUpdateValue(v) {
-					data.value[index].type = v
+					fields.value[index].type = v
 				}
 			})
 		}
@@ -306,11 +302,11 @@ const createColumns = (): DataTableColumns<EntityField> => [
 		title: '长度',
 		key: 'length',
 		render(row, index) {
-			return h(NInputNumber, {
+			return h(TableDataNumberInput, {
 				value: row.length,
 				size: 'small',
 				onUpdateValue(v) {
-					data.value[index].length = v
+					fields.value[index].length = v
 				}
 			})
 		}
@@ -323,7 +319,7 @@ const createColumns = (): DataTableColumns<EntityField> => [
 				value: row.scale,
 				size: 'small',
 				onUpdateValue(v) {
-					data.value[index].scale = v
+					fields.value[index].scale = v
 				}
 			})
 		}
@@ -336,7 +332,7 @@ const createColumns = (): DataTableColumns<EntityField> => [
 				value: row.defaultValue,
 				size: 'small',
 				onUpdateValue(v) {
-					data.value[index].defaultValue = v
+					fields.value[index].defaultValue = v
 				}
 			})
 		}
@@ -355,10 +351,10 @@ const handleCheckedRowKeys = (keys: Array<string | number>, rows: object[], meta
 const handleAddRow = () => {
 	// 判断当前是否选择了行
 	if (checkedRowKeys.value.length === 0) {
-		data.value.push(fieldInit())
+		fields.value.push(fieldInit())
 	} else {
-		const index = data.value.findIndex(row => row.id === checkedRowKeys.value[0])
-		data.value.splice(index + 1, 0, fieldInit())
+		const index = fields.value.findIndex(row => row.id === checkedRowKeys.value[0])
+		fields.value.splice(index + 1, 0, fieldInit())
 	}
 }
 
@@ -367,8 +363,8 @@ const handleRemoveRow = () => {
 	if (checkedRowKeys.value.length === 0) {
 		return
 	}
-	const index = data.value.findIndex(row => row.id === checkedRowKeys.value[0])
-	data.value.splice(index, 1)
+	const index = fields.value.findIndex(row => row.id === checkedRowKeys.value[0])
+	fields.value.splice(index, 1)
 }
 
 const handleTopRow = () => {
@@ -376,28 +372,27 @@ const handleTopRow = () => {
 	if (checkedRowKeys.value.length === 0) {
 		return
 	}
-	const index = data.value.findIndex(row => row.id === checkedRowKeys.value[0])
+	const index = fields.value.findIndex(row => row.id === checkedRowKeys.value[0])
 	if (index === 0) {
 		return
 	}
-	const row = data.value.splice(index, 1)
+	const row = fields.value.splice(index, 1)
 	// 将当前行移动到第一行
-	data.value.unshift(row[0])
+	fields.value.unshift(row[0])
 }
-
 
 const handleUpwardRow = () => {
 	// 判断当前是否选择了行
 	if (checkedRowKeys.value.length === 0) {
 		return
 	}
-	const index = data.value.findIndex(row => row.id === checkedRowKeys.value[0])
+	const index = fields.value.findIndex(row => row.id === checkedRowKeys.value[0])
 	if (index === 0) {
 		return
 	}
-	const row = data.value.splice(index, 1)
+	const row = fields.value.splice(index, 1)
 	// 将当前行移动到上一行
-	data.value.splice(index - 1, 0, row[0])
+	fields.value.splice(index - 1, 0, row[0])
 }
 
 const handleDownwardRow = () => {
@@ -405,13 +400,13 @@ const handleDownwardRow = () => {
 	if (checkedRowKeys.value.length === 0) {
 		return
 	}
-	const index = data.value.findIndex(row => row.id === checkedRowKeys.value[0])
-	if (index === data.value.length - 1) {
+	const index = fields.value.findIndex(row => row.id === checkedRowKeys.value[0])
+	if (index === fields.value.length - 1) {
 		return
 	}
-	const row = data.value.splice(index, 1)
+	const row = fields.value.splice(index, 1)
 	// 将当前行移动到下一行
-	data.value.splice(index + 1, 0, row[0])
+	fields.value.splice(index + 1, 0, row[0])
 }
 
 const handleBottomRow = () => {
@@ -419,17 +414,48 @@ const handleBottomRow = () => {
 	if (checkedRowKeys.value.length === 0) {
 		return
 	}
-	const index = data.value.findIndex(row => row.id === checkedRowKeys.value[0])
-	if (index === data.value.length - 1) {
+	const index = fields.value.findIndex(row => row.id === checkedRowKeys.value[0])
+	if (index === fields.value.length - 1) {
 		return
 	}
-	const row = data.value.splice(index, 1)
+	const row = fields.value.splice(index, 1)
 	// 将当前行移动到最后一行
-	data.value.push(row[0])
+	fields.value.push(row[0])
+}
+
+const handleSave = () => {
+	formRef.value?.validate().then(() => {
+		const validFields = fields.value.filter(row => row.fieldName && row.fieldComment)
+		console.log(validFields)
+	})
+}
+
+
+watch(fields, (value) => {
+	// 每次更新表单都会触发校验
+	const fieldNameRepeat = checkFieldNameRepeat(value);
+	console.log(fieldNameRepeat)
+}, {deep: true})
+
+/**
+ * 校验fieldName是否存在重复，若有则返回这些行的id
+ **/
+const checkFieldNameRepeat = (fields: EntityField[]) => {
+	const validFields = fields.filter(row => row.id && row.fieldName)
+	const fieldNameMap = new Map<string, string>()
+	const repeatIds: string[] = []
+	validFields.forEach(row => {
+		if (fieldNameMap.has(row.fieldName)) {
+			repeatIds.push(row.id)
+		} else {
+			fieldNameMap.set(row.fieldName, row.id)
+		}
+	})
+	return repeatIds
 }
 
 onMounted(() => {
-	console.log('mounted')
+
 })
 
 </script>

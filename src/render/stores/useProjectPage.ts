@@ -3,6 +3,7 @@ import {router} from "@render/router";
 import {RouteName} from "@common/constants/app/RouteName";
 import {GroupMenuOptionType} from "@render/components/GroupMenu/types";
 import {ProjectApi} from "@render/api/ProjectApi";
+import {useModelManagerStore} from "@render/stores/useModelManager";
 
 export interface TabPanel {
 	key: string // tabPanel的key
@@ -17,13 +18,9 @@ export interface ModelTabPanel extends TabPanel {
 export interface ProjectState {
 	activeSideMenuItemKey: string // 当前激活的左侧菜单item的key
 
-	splitSize: string // 记录页面的splitSize
 
 	groupMenuSelectedKey: string // 记录groupMenu的选中项
 	groupMenuExpandedKeys: string[] // 记录groupMenu的展开项
-
-	modelActiveTabKey: string // 记录modelManager当前激活的tabPanel
-	modelTabPanels: ModelTabPanel[] // 记录modelManager的tabPanel
 }
 
 export const useProjectPageStore = defineStore({
@@ -41,14 +38,13 @@ export const useProjectPageStore = defineStore({
 			this.projectStateMap.set(projectId, {
 				activeSideMenuItemKey: state ? state.activeSideMenuItemKey : RouteName.modelManager,
 
-				splitSize: state ? state.splitSize : '200px',
 
 				groupMenuSelectedKey: state ? state.groupMenuSelectedKey : null,
 				groupMenuExpandedKeys: state ? state.groupMenuExpandedKeys : [],
-
-				modelActiveTabKey: state ? state.modelActiveTabKey : null,
-				modelTabPanels: state ? state.modelTabPanels : []
 			})
+
+			useModelManagerStore().init(projectId)
+
 			return this.projectStateMap.get(projectId)
 		},
 		// 根据项目路径初始化项目数据
@@ -61,66 +57,5 @@ export const useProjectPageStore = defineStore({
 			const pathName: string = this.projectStateMap.get(projectId).activeSideMenuItemKey
 			await router.push({name: pathName, query: {projectId}})
 		},
-		getModelTabPanels(projectId: number): ModelTabPanel[] {
-			const state = this.projectStateMap.get(projectId)
-			if (state) {
-				return state.modelTabPanels
-			} else {
-				return this.initProjectState(projectId).modelTabPanels
-			}
-		},
-		// 添加modelTabPanel
-		addModelTabPanel(projectId: number, tabPanel: ModelTabPanel, active?: boolean) {
-			if (this.hasModelTabPanel(projectId, tabPanel.key)) {
-				return
-			}
-
-			const state = this.projectStateMap.get(projectId)
-
-			state.modelTabPanels.push(tabPanel)
-
-			// 如果当前没有激活的TabPanel则激活此TabPanel
-			if (state.modelActiveTabKey == null) {
-				state.modelActiveTabKey = tabPanel.key
-				return;
-			}
-
-			// 主动激活
-			if (active) {
-				state.modelActiveTabKey = tabPanel.key
-			}
-		},
-		// 激活modelTabPanel
-		activeModelTabPanel(projectId: number, tabPanel: ModelTabPanel) {
-			if (this.hasModelTabPanel(projectId, tabPanel.key)) {
-				const state = this.projectStateMap.get(projectId)
-				state.modelActiveTabKey = tabPanel.key
-			} else {
-				this.addModelTabPanel(projectId, tabPanel, true)
-			}
-		},
-		removeModelTabPanel(projectId: number, key: string) {
-			const modelTabPanels: ModelTabPanel[] = this.projectStateMap.get(projectId).modelTabPanels
-			const modelActiveTabKey: string = this.projectStateMap.get(projectId).modelActiveTabKey
-
-			const index = modelTabPanels.findIndex((panel) => panel.key === key)
-
-			if (!~index) return
-
-			// 移除tabPanel
-			modelTabPanels.splice(index, 1)
-
-			// 如果移除的当前激活的tabPanel，则激活其前一个
-			if (modelActiveTabKey === key) {
-				const newKey = modelTabPanels[Math.min(index, modelTabPanels.length - 1)]?.key
-
-				this.projectStateMap.get(projectId).modelActiveTabKey = newKey
-				this.projectStateMap.get(projectId).groupMenuSelectedKey = newKey
-			}
-		},
-		// 根据key判断tabPanel是否存在于modelTabPanels中
-		hasModelTabPanel(projectId: number, key: string) {
-			return this.getModelTabPanels(projectId).some((panel) => panel.key === key)
-		}
 	}
 })

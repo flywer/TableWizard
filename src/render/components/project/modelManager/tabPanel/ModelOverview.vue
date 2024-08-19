@@ -1,20 +1,20 @@
 <template>
 	ModelOverview
-	{{projectId}}
-	{{ panel}}
+	{{ projectId }}
+	{{ modelOptions }}
 </template>
 
 <script setup lang="ts">
-import {ModelTabPanel} from "@render/stores/useProjectPage";
 import {PropType} from "vue";
+import {ModelOptions} from "@render/stores/useModelManager";
 
 const props = defineProps({
 	projectId: {
 		type: Number,
 		required: true,
 	},
-	panel: {
-		type: Object as PropType<ModelTabPanel>,
+	modelOptions: {
+		type: Object as PropType<ModelOptions>,
 		required: true,
 	}
 })

@@ -49,8 +49,8 @@ declare interface DataTableType {
 // 表字段属性
 declare interface EntityField {
 	id: string
-	defKey: string
-	defName: string
+	fieldName: string
+	fieldComment: string
 	primaryKey: boolean
 	notNull: boolean
 	autoIncrement: boolean

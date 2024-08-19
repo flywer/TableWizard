@@ -21,7 +21,7 @@ const props = defineProps<{
 }>();
 
 // 定义 emit，将选中的值传递给父组件
-const emit = defineEmits(['update:value']);
+defineEmits(['update:value']);
 
 // 内部值，用于双向绑定
 const inputValue = ref('');
@@ -33,23 +33,17 @@ const filteredOptions = computed(() => {
 	);
 });
 
-
-const handleGetShow = (value:string) => {
+const handleGetShow = (value: string) => {
 	if (isEmpty(value)) {
-		return  true
-	}else{
+		return true
+	} else {
 		// 存在于选项中
 		return true
 	}
-
 }
 
 // 监听 modelValue 的变化，更新内部值
-watch(
-	() => props.value,
-	(newValue) => {
-		inputValue.value = newValue;
-	}
-);
-
+watch(() => props.value, (newValue) => {
+	inputValue.value = newValue;
+});
 </script>
