@@ -8,6 +8,7 @@
           :selected-key="internalSelectedKey"
           :expanded-keys="internalExpandedKeys"
           :render-prefix="renderPrefix"
+          :render-label="renderLabel"
           :render-suffix="renderSuffix"
       />
       <div v-if="menuOption.children && internalExpandedKeys.includes(menuOption.key)" class="children-menu">
@@ -17,6 +18,7 @@
             :selected-key="internalSelectedKey"
             :expanded-keys="internalExpandedKeys"
             :render-prefix="renderPrefix"
+            :render-label="renderLabel"
             :render-suffix="renderSuffix"
             @update:selected-key="updateSelectedKey"
             @update:expanded-keys="updateExpandedKeys"
@@ -44,6 +46,14 @@ const props = defineProps({
     default: ['$undefined$']
   },
   renderPrefix: {
+    type: Function as PropType<({option, checked, selected}: {
+      option: GroupMenuOption,
+      checked: boolean,
+      selected: boolean
+    }) => VNodeChild>,
+    default: undefined,
+  },
+  renderLabel: {
     type: Function as PropType<({option, checked, selected}: {
       option: GroupMenuOption,
       checked: boolean,

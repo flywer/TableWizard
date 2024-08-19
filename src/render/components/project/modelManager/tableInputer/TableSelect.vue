@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, watch} from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import {isEmpty} from "lodash";
 
 const props = defineProps<{
@@ -45,5 +45,9 @@ const handleGetShow = (value: string) => {
 // 监听 modelValue 的变化，更新内部值
 watch(() => props.value, (newValue) => {
 	inputValue.value = newValue;
+});
+
+onMounted(() => {
+	inputValue.value = props.value;
 });
 </script>

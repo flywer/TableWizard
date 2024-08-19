@@ -46,6 +46,7 @@
 		"@iconify-json/mingcute": "^1.1.19",
 		"@iconify-json/ph": "^1.1.14",
 		"@iconify-json/tabler": "^1.1.119",
+		"@types/jsonfile": "^6.1.4",
 		"@types/lodash-es": "^4.17.6",
 		"@unocss/preset-rem-to-px": "^0.62.2",
 		"@unocss/reset": "^0.61.9",

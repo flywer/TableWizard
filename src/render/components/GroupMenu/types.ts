@@ -5,7 +5,8 @@ export type GroupMenuOption = {
     type: GroupMenuOptionType // 每个菜单的特有属性，控制着右侧Tab的渲染规则
     label: string
     key: string
-    icon: string
+    icon?: string
+    hiddenExpandIcon?: boolean
     children?: GroupMenuOption[]
     [key: string]: any
 }

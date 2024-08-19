@@ -160,7 +160,7 @@ export class ProjectController {
 							} else if (file === 'treeRelation.json') {
 								// 读取 treeRelation.json
 								// ... 根据 treeConfigData 中的结构读取数据文件，并将数据添加到 modelsData[subFolder] 中
-								modelsData[subFolder].treeRelation = await jsonfile.readFile(filePath);
+								// modelsData[subFolder].treeRelation = await jsonfile.readFile(filePath);
 							} else if (file.endsWith('.json')) {
 								// 如果是其他 json 文件，直接读取数据
 								const modelData = await jsonfile.readFile(filePath);

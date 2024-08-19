@@ -5,6 +5,15 @@ declare interface CreateProjectReqVO {
 	projectPath: string
 }
 
+declare interface SaveDataTableVO {
+	id: string
+	projectId: number
+	parentId: string
+	tableName: string
+	tableComment: string
+	fields: EntityField[]
+}
+
 declare interface ModelTreeNode {
 	id: string
 	label: string

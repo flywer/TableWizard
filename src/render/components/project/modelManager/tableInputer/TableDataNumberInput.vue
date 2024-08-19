@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import {PropType, ref, watch} from "vue";
+import {onMounted, PropType, ref, watch} from "vue";
 import {useVModel} from "@vueuse/core";
 
 const props = defineProps({
@@ -44,14 +44,17 @@ const data = useVModel(props, 'value', emit)
 // 内部值，用于双向绑定
 const inputValue = ref();
 
-watch(() => props.value, (value) => {
-	inputValue.value = value
-})
-
 const handleUpdateValue = (value: number) => {
 	data.value = value
 }
 
+watch(() => props.value, (value) => {
+	inputValue.value = value
+})
+
+onMounted(()=>{
+	inputValue.value = props.value
+})
 </script>
 
 <style scoped lang="less">

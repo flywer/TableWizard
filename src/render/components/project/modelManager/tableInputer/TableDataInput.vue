@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import {PropType, ref, watch} from "vue";
+import {onMounted, PropType, ref, watch} from "vue";
 import {useVModel} from "@vueuse/core";
 
 const props = defineProps({
@@ -51,6 +51,9 @@ const handleUpdateValue = (value: string) => {
 	data.value = value
 }
 
+onMounted(() => {
+	inputValue.value = props.value
+})
 </script>
 
 <style scoped lang="less">

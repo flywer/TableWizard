@@ -12,14 +12,16 @@
     <template #default>
 		<span class="relative top-0 left-0 right-0 bottom-0 w-full">
 			<n-flex :size="0" align="center">
-				<component v-if="!isGroup" :is="renderExpandIcon"/>
+				<component v-if="!isGroup && !menuOption.hiddenExpandIcon" :is="renderExpandIcon"/>
         <n-flex class="flex-grow-2" :size="0" align="center">
            <span v-if="renderPrefix">
 					   <component
                  :is="renderPrefix({ option: menuOption, checked: false, selected: selectedKey === menuOption.key })"/>
 			      </span>
             <span class="flex-grow-2  text-left">
-                  <n-text depth="2">{{ menuOption.label }}</n-text>
+               <component v-if="renderLabel"
+                          :is="renderLabel({ option: menuOption, checked: false, selected: selectedKey === menuOption.key })"/>
+               <n-text v-else depth="2">{{ menuOption.label }}</n-text>
             </span>
           <n-flex class="suffix-content"
                   :class="suffixAlwaysShow ? 'visibility-visible' : showSuffix ? 'visibility-visible' :'' " :size="0"
@@ -52,6 +54,15 @@ const props = defineProps({
     }) => VNodeChild>,
     default: undefined,
   },
+  renderLabel: {
+    type: Function as PropType<({option, checked, selected}: {
+      option: GroupMenuOption,
+      checked: boolean,
+      selected: boolean
+    }) => VNodeChild>,
+    default: undefined,
+  },
+  // 是否显示后缀
   suffixAlwaysShow: {
     type: Boolean,
     default: false,
