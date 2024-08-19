@@ -11,7 +11,7 @@ export class ModelApi {
         return ipcInstance.send(ModelApiChannel.GET_DATATABLE_MENU, projectId)
     }
 
-    static getDataTable(projectId: number, datatableId: string): Promise<any> {
+    static getDataTable(projectId: number, datatableId: string): Promise<SaveDataTableVO> {
         return ipcInstance.send(ModelApiChannel.GET_DATATABLE, projectId, datatableId)
     }
 }

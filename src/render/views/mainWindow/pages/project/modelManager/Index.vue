@@ -73,7 +73,7 @@ import {useRoute} from "vue-router";
 import {computed} from "vue";
 import ModelManagerMenu from "@render/components/project/modelManager/ModelManagerMenu.vue";
 import ModelOverview from "@render/components/project/modelManager/tabPanel/ModelOverview.vue";
-import DataTableModel from "@render/components/project/modelManager/tabPanel/DataTableModel.vue";
+import DataTableModel from "@render/components/DataTableModelPanel/index.vue";
 import {useModelManagerStore} from "@render/stores/useModelManager";
 
 defineOptions({name: 'ProjectModelManager'})

@@ -6,6 +6,7 @@ import jsonfile from "jsonfile";
 import {ProjectService} from "@main/service/ProjectService";
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
 import {ModelService} from "@main/service/ModelService";
+import {FsUtils} from "@common/utils/FsUtils";
 
 @Controller()
 export class ModelController {
@@ -23,9 +24,21 @@ export class ModelController {
     @IpcHandle(ModelApiChannel.SAVE_DATATABLE)
     async saveDataTable(vo: SaveDataTableVO) {
         let project = await this.projectService.getProjectById(vo.projectId);
-        const filePath = join(project.projectPath, 'models', 'datatable', `${vo.id}.json`);
-        jsonfile.writeFileSync(filePath, vo, {spaces: 2});
-        return CommonResult.success("保存成功")
+        const folderPath = join(project.projectPath, 'models', 'datatable');
+        if (vo.parentId) {
+            const path = await FsUtils.findFolderPathByName(folderPath, vo.parentId)
+            if (path) {
+                const savePath = join(path, `${vo.id}.json`);
+                jsonfile.writeFileSync(savePath, vo, {spaces: 2});
+                return CommonResult.success("保存成功")
+            } else {
+                return CommonResult.error(`文件夹 ${vo.parentId} 不存在`)
+            }
+        } else {
+            const filePath = join(folderPath, `${vo.id}.json`);
+            jsonfile.writeFileSync(filePath, vo, {spaces: 2});
+            return CommonResult.success("保存成功")
+        }
     }
 
     @IpcHandle(ModelApiChannel.GET_DATATABLE_MENU)

@@ -106,18 +106,8 @@
 </template>
 
 <script setup lang="ts">
-import {h, onMounted, PropType, reactive, ref, watch} from "vue";
-import {
-  DataTableColumns,
-  FormInst,
-  NButton,
-  NCheckbox,
-  NFlex,
-  NInput,
-  NInputNumber,
-  NText,
-  useThemeVars
-} from "naive-ui";
+import {computed, h, onMounted, PropType, reactive, ref, watch} from "vue";
+import {DataTableColumns, FormInst, NButton, NCheckbox, NFlex, NInput, NText, useThemeVars} from "naive-ui";
 import {v4 as uuidv4} from 'uuid';
 import TableSelect from "@render/components/project/modelManager/tableInputer/TableSelect.vue";
 import {useRefHistory} from "@vueuse/core";
@@ -136,6 +126,8 @@ const props = defineProps({
     required: true,
   }
 })
+
+const datatable = ref<SaveDataTableVO>()
 
 const formRef = ref<FormInst | null>(null);
 const formModel = reactive({
@@ -186,6 +178,11 @@ const fields = ref<EntityField[]>([])
 
 const {history, undo, redo, canUndo, canRedo} = useRefHistory(fields, {deep: true, capacity: 100})
 
+const fieldNameRepeatIds = ref([])
+const fieldNameRepeatIdList = computed(() => {
+  return checkFieldNameRepeat(fields.value)
+})
+
 const commonTableHeader = (title: string) => {
   return h(NFlex, {justify: 'center'}, () => [
     h(NText, {depth: 2, class: 'text-xs select-none'}, () => title),
@@ -210,14 +207,19 @@ const createColumns = (): DataTableColumns<EntityField> => [
     },
     render(row, index) {
       return h("div", {style: {position: "relative"}}, [
-        true ? h("div", {class: "modified-marker"}) : null,
+        h("div", {class: "modified-marker"}),
         h(NText, {class: "row-index pl-3 " + checkedBackgroundClass(row)}, () => index + 1),
         h(TableDataInput, {
           value: row.fieldName,
           size: "small",
-          validation: {
-            message: "字段名称不能重复",
-            status: checkFieldNameRepeat(fields.value).includes(row.id) ? 'error' : undefined
+          validation: () => {
+            console.log(11)
+            return new Promise((resolve) => {
+              if (fieldNameRepeatIdList.value.includes(row.id)) {
+                resolve({message: "字段名称不能重复", status: 'error'})
+              }
+              resolve({message: "", status: undefined})
+            })
           },
           className: checkedBackgroundClass(row),
           'onUpdate:value': (v: string) => {
@@ -231,11 +233,12 @@ const createColumns = (): DataTableColumns<EntityField> => [
     title: '显示名称',
     key: 'fieldComment',
     render(row, index) {
-      return h(NInput, {
+      return h(TableDataInput, {
         value: row.fieldComment,
-        size: 'small',
-        onUpdateValue(v) {
-          fields.value[index].fieldComment = v
+        size: "small",
+        className: checkedBackgroundClass(row),
+        'onUpdate:value': (v: string) => {
+          fields.value[index].fieldComment = v;
         }
       })
     }
@@ -243,6 +246,8 @@ const createColumns = (): DataTableColumns<EntityField> => [
   {
     title: '主键',
     key: 'primaryKey',
+    width: 60,
+    align: 'center',
     render(row, index) {
       return h(NCheckbox, {
         checked: row.primaryKey,
@@ -256,6 +261,8 @@ const createColumns = (): DataTableColumns<EntityField> => [
   {
     title: '不为空',
     key: 'notNull',
+    width: 60,
+    align: 'center',
     render(row, index) {
       return h(NCheckbox, {
         checked: row.notNull,
@@ -269,6 +276,8 @@ const createColumns = (): DataTableColumns<EntityField> => [
   {
     title: '自增',
     key: 'autoIncrement',
+    width: 60,
+    align: 'center',
     render(row, index) {
       return h(NCheckbox, {
         checked: row.autoIncrement,
@@ -317,7 +326,7 @@ const createColumns = (): DataTableColumns<EntityField> => [
     title: '小数位数',
     key: 'scale',
     render(row, index) {
-      return h(NInputNumber, {
+      return h(TableDataNumberInput, {
         value: row.scale,
         size: 'small',
         onUpdateValue(v) {
@@ -330,11 +339,12 @@ const createColumns = (): DataTableColumns<EntityField> => [
     title: '默认值',
     key: 'defaultValue',
     render(row, index) {
-      return h(NInput, {
+      return h(TableDataInput, {
         value: row.defaultValue,
-        size: 'small',
-        onUpdateValue(v) {
-          fields.value[index].defaultValue = v
+        size: "small",
+        className: checkedBackgroundClass(row),
+        'onUpdate:value': (v: string) => {
+          fields.value[index].defaultValue = v;
         }
       })
     }
@@ -454,24 +464,28 @@ const handleSave = () => {
       fields: validFields
     }
     ModelApi.saveDatatable(vo).then(() => {
-      console.log('保存成功')
+      window.$message.success('保存成功')
     })
   })
 }
 
-watch(fields, (value) => {
-  // 每次更新表单都会触发校验
-  const fieldNameRepeat = checkFieldNameRepeat(value);
-  console.log(fieldNameRepeat)
-}, {deep: true})
 
-onMounted(() => {
+/*watch(fields, (value) => {
+  // 每次更新表单都会触发校验
+  fieldNameRepeatIds.value = checkFieldNameRepeat(value);
+}, {deep: true})*/
+
+watch(datatable, () => {
+  if (datatable.value) {
+    formModel.tableName = datatable.value.tableName
+    formModel.tableComment = datatable.value.tableComment
+    fields.value = datatable.value.fields
+  }
+})
+
+onMounted(async () => {
   if (props.modelOptions.id) {
-    ModelApi.getDataTable(props.projectId,props.modelOptions.id).then((res) => {
-      formModel.tableName = res.tableName
-      formModel.tableComment = res.tableComment
-      fields.value = res.fields
-    })
+    datatable.value = await ModelApi.getDataTable(props.projectId, props.modelOptions.id)
   }
 })
 
@@ -503,7 +517,7 @@ onMounted(() => {
 #field-table:deep(.modified-marker) {
   width: 4px;
   height: 85%;
-  background-color: #eaea06;
+  background-color: #d09966;
   position: absolute;
   left: -40px; /* 微调位置到表格左侧 */
   top: 2px;

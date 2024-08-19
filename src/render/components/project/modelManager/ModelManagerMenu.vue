@@ -67,7 +67,9 @@ const renderMenuIcon = (className: string) => {
 }
 
 const handleUpdateSelectedKey = (key: string, option: GroupMenuOption) => {
+  console.log(key)
   if (key === 'overview') {
+
     useModelManager.addOverviewTabPanel(props.projectId, true)
   } else if (key === 'datatable') {
     return
