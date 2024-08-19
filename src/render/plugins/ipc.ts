@@ -1,5 +1,6 @@
 import {getCurrentInstance, onUnmounted, toRaw} from 'vue'
 import CommonResult from "@common/CommonResult";
+import {cloneDeep} from "lodash";
 
 // @ts-ignore
 const {ipcRenderer} = window
@@ -27,7 +28,7 @@ const interceptResponse = <T>(response: T): any => {
 
 export const ipcInstance: IpcInstance = {
 	send: async <T = any>(target: { toString: () => string }, ...args: any[]) => {
-		const payloads: any[] = args.map(e => toRaw(e))
+		const payloads = cloneDeep(args.map(e => toRaw(e)));
 		return new Promise((resolve, reject) => {
 			ipcRenderer.invoke(target.toString(), ...payloads).then((response) => {
 				resolve(interceptResponse(response))
