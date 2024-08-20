@@ -1,107 +1,129 @@
 <template>
-  <div>
-    <n-card :bordered="false" size="small" class="mb-1 select-none pl-2 pr-2" :content-style="{padding:'4px'}">
-      <n-flex justify="end">
-        <n-button type="primary" @click="handleSave">
-          保 存
-        </n-button>
-      </n-flex>
-    </n-card>
-    <n-scrollbar style="height: calc(100vh - 125px - 42px)">
-      <n-card size="small" class="mb-1 select-none" :content-style="{padding:'4px'}">
-        <n-h5 prefix="bar">数据表信息</n-h5>
-        <n-form
-            ref="formRef"
-            :model="formModel"
-            :rules="formRules"
-            :size="'small'"
-        >
-          <n-grid :cols="2" :x-gap="4">
-            <n-form-item-gi label="表名称" path="tableName">
-              <n-input v-model:value="formModel.tableName" placeholder="表名称" size="small"/>
-            </n-form-item-gi>
-            <n-form-item-gi label="表注释" path="tableComment">
-              <n-input v-model:value="formModel.tableComment" placeholder="表注释" size="small"/>
-            </n-form-item-gi>
-          </n-grid>
-        </n-form>
-      </n-card>
+  <div id="model-panel">
+    <n-tabs
+        default-value="1"
+        type="line"
+        add-tab-class="pl-4"
+        tabs-padding="20"
+    >
+      <n-tab-pane name="1" tab="表信息">
+        <n-card :bordered="false" size="small" class="mb-1 select-none pl-2 pr-4" :content-style="{padding:'4px'}">
+          <n-flex justify="end">
+            <n-button type="primary" @click="handleSave">
+              保 存
+            </n-button>
+          </n-flex>
+        </n-card>
+        <n-scrollbar style="height: calc(100vh - 125px - 42px)">
+          <div class="pr-4">
+            <n-card size="small" class="mb-1 select-none" :content-style="{padding:'4px'}">
+              <n-h5 prefix="bar">数据表信息</n-h5>
+              <n-form
+                  ref="formRef"
+                  :model="formModel"
+                  :rules="formRules"
+                  :size="'small'"
+              >
+                <n-grid :cols="2" :x-gap="4">
+                  <n-form-item-gi label="表名称" path="tableName">
+                    <n-input v-model:value="formModel.tableName" placeholder="表名称" size="small"/>
+                  </n-form-item-gi>
+                  <n-form-item-gi label="表注释" path="tableComment">
+                    <n-input v-model:value="formModel.tableComment" placeholder="表注释" size="small"/>
+                  </n-form-item-gi>
+                </n-grid>
+              </n-form>
+            </n-card>
 
-      <n-card size="small" class="mb-1 select-none" :content-style="{padding:'4px'}">
-        <template #default>
-          <n-flex :size="'small'" justify="space-between">
-            <n-flex class="items-center justify-center h-full" :size="0">
-              <component
-                  :is="tableButton({
+            <n-card size="small" class="mb-1 select-none" :content-style="{padding:'4px'}">
+              <template #default>
+                <n-flex :size="'small'" justify="space-between">
+                  <n-flex class="items-center justify-center h-full" :size="0">
+                    <component
+                        :is="tableButton({
 									iconClassName: 'i-material-symbols:add-rounded',
 									onClick: () =>handleAddRow()
 								})"/>
-              <component
-                  :is="tableButton({
+                    <component
+                        :is="tableButton({
 									iconClassName: 'i-material-symbols:check-indeterminate-small-rounded',
 									disabled: fields.length === 0,
 									onClick: () =>handleRemoveRow()
 								})"/>
-              <n-divider vertical/>
-              <component
-                  :is="tableButton({
+                    <n-divider vertical/>
+                    <component
+                        :is="tableButton({
 									iconClassName: 'i-material-symbols:vertical-align-top-rounded',
 									onClick: () =>handleTopRow()
 								})"/>
-              <component
-                  :is="tableButton({
+                    <component
+                        :is="tableButton({
 									iconClassName: 'i-material-symbols:arrow-upward-rounded',
 									onClick: () =>handleUpwardRow()
 								})"/>
-              <component
-                  :is="tableButton({
+                    <component
+                        :is="tableButton({
 									iconClassName: 'i-material-symbols:arrow-downward-rounded',
 									onClick: () =>handleDownwardRow()
 								})"/>
-              <component
-                  :is="tableButton({
+                    <component
+                        :is="tableButton({
 									iconClassName: 'i-material-symbols:vertical-align-bottom-rounded',
 									onClick: () =>handleBottomRow()
 								})"/>
-              <n-divider vertical/>
-              <component
-                  :is="tableButton({
+                    <n-divider vertical/>
+                    <component
+                        :is="tableButton({
 									iconClassName: 'i-material-symbols:undo-rounded',
 									disabled:!canUndo,
 									onClick: () =>undo()
 								})"/>
-              <component
-                  :is="tableButton({
+                    <component
+                        :is="tableButton({
 									iconClassName: 'i-material-symbols:redo-rounded',
 									disabled:!canRedo,
 									onClick: () =>redo()
 								})"/>
-            </n-flex>
+                  </n-flex>
 
-            <n-flex class="items-center justify-center h-full" :size="0">
+                  <n-flex class="items-center justify-center h-full" :size="0">
 
-            </n-flex>
+                  </n-flex>
 
-          </n-flex>
-        </template>
-      </n-card>
+                </n-flex>
+              </template>
+            </n-card>
 
-      <n-data-table
-          id="field-table"
-          v-model:checked-row-keys="checkedRowKeys"
-          :bordered="true"
-          :single-line="false"
-          :size="'small'"
-          :columns="columns"
-          :data="fields"
-          :max-height="550"
-          :scroll-x="1500"
-          :row-key="row => row.id"
-          @update:checked-row-keys="handleCheckedRowKeys"
-      />
-      {{ modelOptions }}
-      <pre>{{ JSON.stringify(fields, null, 2) }}</pre>
-    </n-scrollbar>
+            <n-data-table
+                id="field-table"
+                v-model:checked-row-keys="checkedRowKeys"
+                :bordered="true"
+                :single-line="false"
+                :size="'small'"
+                :columns="columns"
+                :data="fields"
+                :max-height="550"
+                :scroll-x="1500"
+                :row-key="row => row.id"
+                @update:checked-row-keys="handleCheckedRowKeys"
+            />
+
+            {{ modelOptions }}
+            <pre>{{ JSON.stringify(fields, null, 2) }}</pre>
+          </div>
+        </n-scrollbar>
+      </n-tab-pane>
+      <n-tab-pane name="2" tab="数据库语句">
+        <DDLGenerator :project-id="projectId" :datatable="{
+          tableName: formModel.tableName,
+          tableComment: formModel.tableComment,
+          fields: fields
+        }"/>
+      </n-tab-pane>
+      <template #suffix>
+        Suffix
+      </template>
+    </n-tabs>
   </div>
 </template>
 
@@ -115,6 +137,7 @@ import {ModelOptions, useModelManagerStore} from "@render/stores/useModelManager
 import TableDataInput from "@render/components/project/modelManager/tableInputer/TableDataInput.vue";
 import TableDataNumberInput from "@render/components/project/modelManager/tableInputer/TableDataNumberInput.vue";
 import {ModelApi} from "@render/api/ModelApi";
+import DDLGenerator from "@render/components/DataTableModelPanel/DDLGenerator.vue";
 
 const props = defineProps({
   projectId: {
@@ -305,7 +328,7 @@ const createColumns = (): DataTableColumns<EntityField> => [
           {label: 'json', value: 'json'},
         ],
         size: 'small',
-        onUpdateValue(v) {
+        'onUpdate:value': (v: string) => {
           fields.value[index].type = v
         }
       })
@@ -318,9 +341,9 @@ const createColumns = (): DataTableColumns<EntityField> => [
       return h(TableDataNumberInput, {
         value: row.length,
         size: 'small',
-        onUpdateValue(v) {
+        'onUpdate:value': (v: number) => {
           fields.value[index].length = v
-        }
+        },
       })
     }
   },
@@ -331,7 +354,7 @@ const createColumns = (): DataTableColumns<EntityField> => [
       return h(TableDataNumberInput, {
         value: row.scale,
         size: 'small',
-        onUpdateValue(v) {
+        'onUpdate:value': (v: number) => {
           fields.value[index].scale = v
         }
       })
@@ -436,6 +459,7 @@ const handleBottomRow = () => {
   // 将当前行移动到最后一行
   fields.value.push(row[0])
 }
+
 /**
  * 校验fieldName是否存在重复，若有则返回这些行的id
  **/
@@ -467,17 +491,17 @@ const handleSave = () => {
     }
     ModelApi.saveDatatable(vo).then(() => {
       window.$message.success('保存成功')
-			useModelManager.menuOptionInit(props.projectId)
-			useModelManager.updateTabPanelLabel(props.projectId, props.modelOptions.id, formModel.tableName)
+      useModelManager.menuOptionInit(props.projectId)
+      useModelManager.updateTabPanelLabel(props.projectId, props.modelOptions.id, formModel.tableName)
     })
   })
 }
 
-watch(datatable, () => {
-  if (datatable.value) {
-    formModel.tableName = datatable.value.tableName
-    formModel.tableComment = datatable.value.tableComment
-    fields.value = datatable.value.fields
+watch(datatable, (value) => {
+  if (value) {
+    formModel.tableName = value.tableName
+    formModel.tableComment = value.tableComment
+    fields.value = value.fields
   }
 })
 
@@ -490,6 +514,10 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
+#model-panel:deep(.n-tabs-tab--active) {
+  border-top: none;
+}
+
 #field-table:deep(.n-data-table-td) {
   padding: 0;
 }

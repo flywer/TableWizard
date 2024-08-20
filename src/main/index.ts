@@ -16,6 +16,7 @@ import {ProjectController} from "@main/controller/ProjectController";
 import {ServiceSource} from "@main/dataSource/ServiceSource";
 import {AppConfig} from "@main/app/AppConfig";
 import {ModelController} from "@main/controller/ModelController";
+import {TemplateController} from "@main/controller/TemplateController";
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 process.env.TZ = 'Asia/Shanghai'; // 设置环境变量为中国时区
@@ -87,7 +88,8 @@ async function bootstrap() {
 				AppSettingsController,
 				AppNotificationController,
 				ProjectController,
-				ModelController
+				ModelController,
+				TemplateController
 			],
 			injects: [{
 				name: 'IS_DEV',

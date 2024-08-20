@@ -54,7 +54,7 @@ export class ProjectController {
 		await this.checkProjectFile(project);
 		await this.checkFolders(project.projectPath);
 
-		log.info(`创建项目成功，项目路径：${project.projectPath}`);
+		log.scope('ProjectController').info(`创建项目成功，项目路径：${project.projectPath}`);
 
 		return CommonResult.success(project)
 	}
@@ -94,8 +94,6 @@ export class ProjectController {
 		const projectInfo: ProjectData = {
 			models: (await this.getModelsData(project.projectPath)).data,
 		};
-
-		log.info(projectInfo);
 
 		return CommonResult.success(projectInfo)
 	}

@@ -67,9 +67,13 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
+#table-data-editor {
+  width: calc(100% + 1px);
+}
+
 #table-data-editor:deep(.n-input) {
   border-radius: 0;
-  height: 100%;
+  height: 36px;
 }
 
 #table-data-editor:deep(.n-input-wrapper) {

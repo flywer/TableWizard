@@ -73,9 +73,8 @@ export class ModelController {
 
 	@IpcHandle(ModelApiChannel.GET_DATATABLE)
 	async getDataTable(projectId: number, datatableId: string) {
-		let project = await this.projectService.getProjectById(projectId);
+		const project = await this.projectService.getProjectById(projectId);
 		const folderPath = join(project.projectPath, 'models', 'datatable');
-
 		ensureDirSync(folderPath);
 
 		const data = await this.modelService.findDatatableIdFile(folderPath, datatableId);

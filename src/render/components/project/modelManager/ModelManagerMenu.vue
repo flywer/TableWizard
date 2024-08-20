@@ -73,7 +73,6 @@ const handleUpdateSelectedKey = (key: string, option: GroupMenuOption) => {
 	} else if (key === 'datatable') {
 		return;
 	} else if (option.type === 'datatable') {
-		console.log(111)
 		// 打开数据表
 		useModelManager.addTabPanel(props.projectId, {
 			panelOptions: {
@@ -216,9 +215,9 @@ const handleDropdownSelect = (key: string) => {
 }
 
 onMounted(() => {
-	ModelApi.getDataTableMenu(props.projectId).then((res) => {
+/*	ModelApi.getDataTableMenu(props.projectId).then((res) => {
 		console.log(res)
-	})
+	})*/
 })
 
 </script>
