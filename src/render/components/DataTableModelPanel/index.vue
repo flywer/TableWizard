@@ -514,10 +514,6 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
-#model-panel:deep(.n-tabs-tab--active) {
-  border-top: none;
-}
-
 #field-table:deep(.n-data-table-td) {
   padding: 0;
 }

@@ -72,7 +72,9 @@ onMounted(() => {
 			fontFamily: 'v-mono',
 			fontSize: 14,
 			contextmenu: false,
-			// ... other options
+			minimap: {
+				enabled: false
+			}
 		});
 
 		editor.onDidChangeModelContent(() => {

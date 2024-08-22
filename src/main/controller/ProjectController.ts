@@ -3,18 +3,20 @@ import {ProjectApiChannel} from "@common/channels/ProjectApiChannel";
 import {ProjectService} from "@main/service/ProjectService";
 import CommonResult from "@common/CommonResult";
 import jdenticon from 'jdenticon';
-import {promises as fs} from 'fs';
+import fs, {ensureDirSync, writeJSONSync} from 'fs-extra';
 import {join} from 'path';
 import jsonfile from 'jsonfile';
 import log from "electron-log";
 import {FsUtils} from "@common/utils/FsUtils";
 import {Project} from "@main/entity/Project";
 import {AppConstant} from "@common/constants/app/AppConstant";
+import {TemplateService} from "@main/service/TemplateService";
 
 @Controller()
 export class ProjectController {
 	constructor(
 		private projectService: ProjectService,
+		private templateService: TemplateService
 	) {
 	}
 
@@ -49,14 +51,35 @@ export class ProjectController {
 		const project = await this.projectService.createProject(vo);
 
 		// 创建项目文件夹
-		await fs.mkdir(project.projectPath, {recursive: true});
-
-		await this.checkProjectFile(project);
-		await this.checkFolders(project.projectPath);
+		ensureDirSync(project.projectPath)
+		// 创建 project.json 文件
+		this.ensureProjectFile(project);
+		// 创建子文件夹
+		this.ensureSubFolders(project.projectPath);
+		// 确保默认模板存在
+		this.templateService.ensureDefaultTemplates(join(project.projectPath, 'templates'));
 
 		log.scope('ProjectController').info(`创建项目成功，项目路径：${project.projectPath}`);
 
 		return CommonResult.success(project)
+	}
+
+	/**
+	 * 确保子文件夹存在
+	 **/
+	ensureSubFolders(projectPath: string) {
+		for (const folderName of this.subFolders) {
+			const folderPath = join(projectPath, folderName);
+			ensureDirSync(folderPath);
+		}
+	}
+
+	/**
+	 * 创建和更新 project.json 文件
+	 **/
+	ensureProjectFile(project: Project) {
+		const projectJsonPath = join(project.projectPath, this.PROJECT_FILE_NAME);
+		writeJSONSync(projectJsonPath, project, {spaces: 2});
 	}
 
 	/**
