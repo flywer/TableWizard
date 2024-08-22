@@ -1,15 +1,15 @@
 <template>
-  <n-config-provider
-      class="h-full"
-      :locale="zhCN"
-      :date-locale="dateZhCN"
-      :theme="theme"
-  >
-    <n-global-style/>
-    <naive-provider>
-      <router-view/>
-    </naive-provider>
-  </n-config-provider>
+	<n-config-provider
+		class="h-full"
+		:locale="zhCN"
+		:date-locale="dateZhCN"
+		:theme="theme"
+	>
+		<n-global-style/>
+		<naive-provider>
+			<router-view/>
+		</naive-provider>
+	</n-config-provider>
 </template>
 
 <script setup lang="ts">
@@ -27,21 +27,24 @@ const ipc = useIpc()
 const theme = ref<null | typeof darkTheme>(null)
 
 const onThemeModeUpdate = async () => {
-  const themeMode = await AppSettingsApi.getAppSettingByName(AppSettingsConstant.THEME_MODE)
-  if (themeMode === null || themeMode.settingValue === 'light') {
-    theme.value = null
-  } else {
-    theme.value = darkTheme
-  }
+	const themeMode = await AppSettingsApi.getAppSettingByName(AppSettingsConstant.THEME_MODE)
+	if (themeMode === null || themeMode.settingValue === 'light') {
+		theme.value = null
+	} else {
+		theme.value = darkTheme
+	}
 }
 
 onMounted(async () => {
-  await onThemeModeUpdate()
+	await onThemeModeUpdate()
 
-  handlebarsRegisterDefaultHelper()
+	handlebarsRegisterDefaultHelper()
 })
 
 ipc.on(AppSettingsApiChannel.THEME_MODE_UPDATED, async () => {
-  await onThemeModeUpdate()
+	await onThemeModeUpdate()
 })
 </script>
+<style>
+
+</style>

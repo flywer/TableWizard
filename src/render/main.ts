@@ -6,12 +6,13 @@ import {router} from "@render/router";
 import pinia from "@render/plugins/pinia";
 
 // https://unocss.dev/ 原子 css 库
-import '@unocss/reset/tailwind-compat.css' // unocss reset
+import '@unocss/reset/tailwind-compat.css';
 import 'virtual:uno.css'
 
 // 全局样式
-import '@render/styles/global.css'
+import '@render/styles/global.css';
 
+// 动画库
 import 'animate.css';
 
 createApp(App)

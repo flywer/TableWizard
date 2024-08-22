@@ -2,8 +2,9 @@ html, body, #app {
 	height: 100%;
 }
 
-* {
-	font-family: 'Microsoft PhagsPa';
+/* Set the default font family */
+:root {
+	font-family: 'Microsoft PhagsPa', sans-serif;
 }
 
 .no-drag {

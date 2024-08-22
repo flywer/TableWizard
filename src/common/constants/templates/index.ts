@@ -3,18 +3,18 @@ export const DialectTemplate: DialectTemplate[] = [
     {
         dialect: "mysql",
         template: `DROP TABLE IF EXISTS {{tableName}};
-CREATE TABLE \`{{tableName}}\` (
+CREATE TABLE {{tableName}} (
   {{#each fields}}
-    \`{{camelBar fieldName ../config.toUpperCase}}\` {{typeFormat type ../config.toUpperCase}}{{#if length}}({{length}}){{/if}}{{#if notNull}} NOT NULL{{/if}}{{#if autoIncrement}} AUTO_INCREMENT{{/if}}{{#if primaryKey}} PRIMARY KEY{{/if}}{{#if defaultValue}}{{#if (eq type "varchar")}} DEFAULT '{{defaultValue}}'{{/if}}{{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}}{{/if}}{{#if fieldComment}} COMMENT '{{fieldComment}}'{{/if}}{{#unless @last}} ,{{/unless}}
+    {{#removeExtraSpaces @data}}{{camelBar fieldName ../config.toUpperCase}} {{typeFormat type ../config.toUpperCase}}{{#if length}}({{length}}){{/if}}{{#if notNull}} NOT NULL{{/if}}{{#if autoIncrement}} AUTO_INCREMENT{{/if}}{{#if primaryKey}} PRIMARY KEY{{/if}}{{#if defaultValue}}{{#if (eq type "varchar")}} DEFAULT '{{defaultValue}}'{{/if}}{{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}}{{/if}}{{#if fieldComment}} COMMENT '{{fieldComment}}'{{/if}}{{#unless @last}} ,{{/unless}}{{/removeExtraSpaces}}
   {{/each}}
 ) {{#if tableComment}}COMMENT = '{{tableComment}}'{{/if}};`
     },
     {
         dialect: 'postgresql',
         template: `DROP TABLE IF EXISTS {{tableName}};
-CREATE TABLE "{{tableName}}" (
+CREATE TABLE {{tableName}} (
   {{#each fields}}
-    {{fieldName}} {{typeFormat type ../toUpperCase}}{{#if length}}({{length}}){{/if}} {{#if notNull}}NOT NULL{{/if}} {{#if primaryKey}}PRIMARY KEY{{/if}} {{#if autoIncrement}}SERIAL{{/if}} {{#if defaultValue}} {{#if (eq type "varchar")}}DEFAULT '{{defaultValue}}'{{/if}} {{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}} {{/if}}{{#unless @last}} ,{{/unless}}
+    {{#removeExtraSpaces @data}}{{camelBar fieldName ../config.toUpperCase}} {{typeFormat type ../config.toUpperCase}}{{#if length}}({{length}}){{/if}} {{#if notNull}}NOT NULL{{/if}} {{#if primaryKey}}PRIMARY KEY{{/if}} {{#if autoIncrement}}SERIAL{{/if}} {{#if defaultValue}} {{#if (eq type "varchar")}}DEFAULT '{{defaultValue}}'{{/if}} {{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}} {{/if}}{{#unless @last}} ,{{/unless}}{{/removeExtraSpaces}}
   {{/each}}
 );
 
