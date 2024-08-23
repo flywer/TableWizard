@@ -10,17 +10,18 @@
 				:render-prefix="renderPrefix"
 				:render-label="renderLabel"
 				:render-suffix="renderSuffix"
+				:menu-index="menuIndex"
 			/>
 			<div v-if="internalExpandedKeys.includes(menuOption.key)" class="children-menu ">
 				<GroupMenu
 					v-if="menuOption.children"
 					:menuOptions="menuOption.children"
-					class="pl-3"
 					:selected-key="internalSelectedKey"
 					:expanded-keys="internalExpandedKeys"
 					:render-prefix="renderPrefix"
 					:render-label="renderLabel"
 					:render-suffix="renderSuffix"
+					:menu-index="menuIndex + 1"
 					@update:selected-key="updateSelectedKey"
 					@update:expanded-keys="updateExpandedKeys"
 				/>
@@ -35,13 +36,12 @@
 </template>
 
 <script setup lang="ts">
-import {PropType, ref, VNodeChild, watch} from "vue";
+import {onMounted, PropType, ref, VNodeChild, watch} from "vue";
 import ButtonMenuItem from "@render/components/GroupMenu/ButtonMenuItem.vue";
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
 import {useVModel} from "@vueuse/core";
-import {isEqual, isEmpty} from "lodash-es";
+import {isEmpty, isEqual} from "lodash-es";
 import CreateNewOneItem from "@render/components/GroupMenu/CreateNewOneItem.vue";
-
 
 const props = defineProps({
 	menuOptions: Array as PropType<GroupMenuOption[]>,
@@ -77,6 +77,10 @@ const props = defineProps({
 		}) => VNodeChild>,
 		default: undefined,
 	},
+	menuIndex: {
+		type: Number,
+		default: 0
+	}
 })
 
 const emit = defineEmits(['update:selectedKey', 'update:expandedKeys']);
@@ -158,7 +162,9 @@ const updateExpandedKeys = (keys: string[], options: GroupMenuOption[]) => {
 	}
 };
 
+onMounted(() => {
 
+})
 </script>
 
 <style scoped lang="less">

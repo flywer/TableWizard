@@ -1,12 +1,13 @@
 <template>
 	<div>
 		<div class="absolute top-0 left-0 right-0 h-10">
-			<n-flex justify="space-between" align="center">
-				<n-h4
-					class="whitespace-nowrap overflow-hidden text-ellipsis"
-				>
-					<n-text depth="2">模型管理</n-text>
-				</n-h4>
+			<n-flex justify="space-between" align="center" class="pr-4">
+				<n-text class="whitespace-nowrap overflow-hidden text-ellipsis text-lg" depth="2">模型管理</n-text>
+				<n-button :size="'small'" text @click="useModelManager.updateSplitSize(projectId,'0px')">
+					<template #icon>
+						<div class="i-lets-icons:expand-left-stop"/>
+					</template>
+				</n-button>
 			</n-flex>
 		</div>
 		<div class="absolute top-10 left-0 right-4 bottom-0">
@@ -42,7 +43,6 @@ import GroupMenu from "@render/components/GroupMenu/GroupMenu.vue";
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
 import {NButton, NFlex, NText, useThemeVars} from "naive-ui"
 import {useModelManagerStore} from "@render/stores/useModelManager";
-import {ModelApi} from "@render/api/ModelApi";
 
 const props = defineProps({
 	projectId: Number
@@ -85,8 +85,6 @@ const handleUpdateSelectedKey = (key: string, option: GroupMenuOption) => {
 			}
 		}, true)
 	}
-	// update selected key
-	// useProjectPage.projectStateMap.get(props.projectId).groupMenuSelectedKey = key
 }
 
 const handleUpdateExpandedKey = (keys: string[], options: GroupMenuOption[]) => {
@@ -133,13 +131,13 @@ const renderLabel = ({option, checked, selected}: {
 			className = 'i-material-symbols:arrow-right-rounded ' + (isExpanded ? 'rotate-90' : '')
 		}
 
-		return h(NFlex, {size: 4}, () => [
+		return h(NFlex, {size: 4, wrap: false}, () => [
 			h(NText, null, '数据表'),
 			h('div', {class: className})
 		])
 	}
 
-	return h(NText, null, () => option.label)
+	return h(NText, {class: 'whitespace-nowrap overflow-hidden text-ellipsis flex-1 line-height-18px'}, () => option.label)
 }
 
 const datatableGroupDropdownOptions = [
@@ -215,13 +213,12 @@ const handleDropdownSelect = (key: string) => {
 }
 
 onMounted(() => {
-/*	ModelApi.getDataTableMenu(props.projectId).then((res) => {
-		console.log(res)
-	})*/
+	/*	ModelApi.getDataTableMenu(props.projectId).then((res) => {
+			console.log(res)
+		})*/
 })
 
 </script>
 
 <style scoped lang="less">
-
 </style>

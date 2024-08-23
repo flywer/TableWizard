@@ -196,6 +196,9 @@ export const useModelManagerStore = defineStore({
 			if (panel) {
 				panel.panelOptions.label = label
 			}
+		},
+		updateSplitSize(projectId: number,size:string){
+			this.stateMap.get(projectId).splitSize = size
 		}
 	}
 });

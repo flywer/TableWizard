@@ -4,7 +4,8 @@
 		v-model:size="useModelManager.stateMap.get(projectId).splitSize"
 		class="h-full"
 		direction="horizontal"
-		max="300px"
+		min="150px"
+		max="400px"
 		default-size="200px"
 	>
 		<template #1>

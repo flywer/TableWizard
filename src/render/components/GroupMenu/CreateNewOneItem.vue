@@ -24,7 +24,7 @@ const props = defineProps({
 			option: GroupMenuOption,
 			checked: boolean,
 			selected: boolean
-		}) => void>,
+		}) => void> | undefined,
 		default: undefined,
 	},
 })
