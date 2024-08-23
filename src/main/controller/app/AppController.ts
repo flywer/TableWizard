@@ -109,12 +109,8 @@ export class AppController {
 				properties: ['openDirectory']
 			}).then(result => {
 				if (result.canceled) {
-					resolve(CommonResult.error('未选择文件夹'))
+					resolve(CommonResult.success(null))
 				} else {
-					// 判断此文件夹为空
-					if (!FsUtils.isEmptyDir(result.filePaths[0])) {
-						resolve(CommonResult.error('文件夹不为空'))
-					}
 					resolve(CommonResult.success(result.filePaths[0]))
 				}
 			}).catch(error => {

@@ -54,6 +54,11 @@
 				</n-form>
 			</n-scrollbar>
 		</template>
+		<template #footer>
+			<n-text depth="3" class="text-xs select-none">
+				项目创建位置：{{ fullPath }}
+			</n-text>
+		</template>
 		<template #action>
 			<n-flex :justify="'end'">
 				<n-button type="primary" :size="'small'" @click="handleCreate" :loading="isSaving">创建</n-button>
@@ -68,6 +73,7 @@ import {FormInst} from "naive-ui";
 import {ProjectApi} from "@render/api/ProjectApi";
 import {v4 as uuidv4} from 'uuid';
 import {AppApi} from "@render/api/app/AppApi";
+import {NodeUtilApi} from "../../api/app/NodeUtilApi";
 
 const props = defineProps({
 	show: {
@@ -124,8 +130,16 @@ const isSaving = ref(false)
 // 默认项目路径
 const defaultProjectPath = ref('')
 
+
+const fullPath = ref('')
+
+
+watch([() => formModel.projectName, () => formModel.projectPath], async ([projectName, projectPath]) => {
+	fullPath.value = await NodeUtilApi.join(projectPath, projectName)
+})
+
 const forModelInit = async () => {
-	formModel.projectName = 'untitled'
+	formModel.projectName = ''
 	formModel.description = null
 	formModel.projectPath = defaultProjectPath.value
 }
@@ -159,7 +173,9 @@ const handleChangeIcon = () => {
 const handleSetupPath = () => {
 	AppApi.selectFolderPath().then(res => {
 		console.log(res)
-		formModel.projectPath = res
+		if (res) {
+			formModel.projectPath = res
+		}
 	})
 }
 
