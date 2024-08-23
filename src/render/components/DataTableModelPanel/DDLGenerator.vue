@@ -8,6 +8,7 @@
 				<n-flex vertical>
 					<n-scrollbar style="height:calc(100vh - 240px)">
 						<n-menu
+							id="dialect-menu"
 							v-model:value="menuActiveKey"
 							:options="dialectMenuOptions"
 							:indent="12"
@@ -72,7 +73,6 @@ const props = defineProps({
 	}
 })
 
-const dialects = reactive<string[]>([])
 const dialectMenuOptions = ref<MenuOption[]>([])
 
 const menuActiveKey = ref<string | null>(null)
@@ -82,31 +82,7 @@ const editorValue = ref()
 const dialect = computed(() => menuActiveKey.value?.split('-')[0] || 'mysql')
 const templateType = computed(() => menuActiveKey.value?.split('-')[1] || 'createTable')
 
-const getDialects = () => {
-	dialects.push('mysql')
-	dialects.push('postgresql')
-	dialects.push('oracle')
-	dialects.push('sqlserver')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-	dialects.push('sqlite')
-}
-
-
 const dialectMenuInit = async () => {
-	getDialects()
-
 	const dialectTemplates = await TemplateApi.getTemplates(props.projectId)
 
 	dialectMenuOptions.value = dialectTemplates.map(item => {
@@ -130,81 +106,6 @@ const dialectMenuInit = async () => {
 const handleUpdateMenu = () => {
 	handleCompile()
 }
-
-const databaseDialects = reactive([
-	{
-		label: 'MySQL',
-		value: 'mysql'
-	},
-	{
-		label: 'PostgreSQL',
-		value: 'postgresql'
-	},
-	{
-		label: 'Oracle',
-		value: 'oracle'
-	},
-	{
-		label: 'SQL Server',
-		value: 'sqlserver'
-	},
-	{
-		label: 'SQLite',
-		value: 'sqlite'
-	},
-	{
-		label: 'H2',
-		value: 'h2'
-	},
-	{
-		label: 'HSQL',
-		value: 'hsqldb'
-	},
-	{
-		label: 'DB2',
-		value: 'db2'
-	},
-	{
-		label: 'DM',
-		value: 'dm'
-	},
-	{
-		label: 'Kingbase',
-		value: 'kingbase'
-	},
-	{
-		label: 'Firebird',
-		value: 'firebird'
-	},
-	{
-		label: 'GBase',
-		value: 'gbase'
-	},
-	{
-		label: 'Informix',
-		value: 'informix'
-	},
-	{
-		label: 'MariaDB',
-		value: 'mariadb'
-	},
-	{
-		label: 'Oscar',
-		value: 'oscar'
-	},
-	{
-		label: 'Sybase',
-		value: 'sybase'
-	},
-	{
-		label: 'Xugu',
-		value: 'xugu'
-	},
-	{
-		label: 'Yugabyte',
-		value: 'yugabyte'
-	}
-])
 
 const handleCompile = () => {
 	const params = {
@@ -237,5 +138,11 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
+#dialect-menu:deep(.n-menu-item){
+	height: 32px;
+}
 
+#dialect-menu:deep(.n-menu-item-content){
+	height: 32px;
+}
 </style>
