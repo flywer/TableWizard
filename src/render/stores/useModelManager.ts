@@ -3,6 +3,7 @@ import {ModelTabPanel} from "@render/stores/useProjectPage";
 import {v4 as uuid} from 'uuid';
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
 import {ModelApi} from "@render/api/ModelApi";
+import {isEmpty} from "lodash";
 
 export interface ModelManagerSate {
 	splitSize: string // 记录页面的splitSize
@@ -27,11 +28,13 @@ export interface ModelTabOptions {
 	modelOptions: ModelOptions // 模型配置
 }
 
+
 export const useModelManagerStore = defineStore({
 	id: 'modelManager',
 	state: () => ({
 		menuOption: [] as GroupMenuOption[],
 		stateMap: new Map<number, ModelManagerSate>(), // 记录每个project的modelManage的页面状态
+		modelData: new Map<number, SaveDataTableVO[]>(), // 记录每个project的model的数据
 	}),
 	actions: {
 		init(projectId: number) {
@@ -44,7 +47,10 @@ export const useModelManagerStore = defineStore({
 				activeTabKey: null,
 				tabPanels: []
 			})
+
+			this.modelData.set(projectId, [])
 		},
+		// region menuOption
 		async menuOptionInit(projectId: number) {
 			const datatableMenu = await ModelApi.getDataTableMenu(projectId)
 
@@ -71,6 +77,32 @@ export const useModelManagerStore = defineStore({
 				},
 			]
 		},
+		// 根据key查找菜单项
+		findMenuByKey(key: string, children: GroupMenuOption[]): GroupMenuOption {
+			for (const item of children) {
+				if (item.key === key) {
+					return item
+				}
+
+				if (item.children) {
+					const result = this.findMenuByKey(key, item.children)
+					if (result) {
+						return result
+					}
+				}
+			}
+		},
+		// 判断是否有子菜单
+		hasChildrenMenu(key: string, children: GroupMenuOption[]): boolean {
+			const option = this.findMenuByKey(key, children)
+			if (option && !isEmpty(option.children)) {
+				return true
+			} else {
+				return false
+			}
+		},
+		// endregion
+		// region stateMap
 		getTabPanels(projectId: number): ModelTabOptions[] {
 			return this.stateMap.get(projectId)?.tabPanels || []
 		},
@@ -166,30 +198,6 @@ export const useModelManagerStore = defineStore({
 				}
 			}, active)
 		},
-		// 根据key查找菜单项
-		findMenuByKey(key: string, children: GroupMenuOption[]): GroupMenuOption {
-			for (const item of children) {
-				if (item.key === key) {
-					return item
-				}
-
-				if (item.children) {
-					const result = this.findMenuByKey(key, item.children)
-					if (result) {
-						return result
-					}
-				}
-			}
-		},
-		// 判断是否有子菜单
-		hasChildrenMenu(key: string, children: GroupMenuOption[]): boolean {
-			const option = this.findMenuByKey(key, children)
-			if (option && option.children && option.children.length > 0) {
-				return true
-			} else {
-				return false
-			}
-		},
 		updateTabPanelLabel(projectId: number, key: string, label: string) {
 			const state: ModelManagerSate = this.stateMap.get(projectId)
 			const panel = state.tabPanels.find((panel) => panel.panelOptions.key === key)
@@ -197,8 +205,59 @@ export const useModelManagerStore = defineStore({
 				panel.panelOptions.label = label
 			}
 		},
-		updateSplitSize(projectId: number,size:string){
+		updateSplitSize(projectId: number, size: string) {
 			this.stateMap.get(projectId).splitSize = size
+		},
+		// endregion
+		// region modelData
+		async setModelData(projectId: number, id: string) {
+			const data: SaveDataTableVO[] = this.getProjectModelData(projectId)
+			if (data.some((item) => item.id === id)) {
+				// 替换
+				const index = data.findIndex((item) => item.id === id)
+				const model = await ModelApi.getDataTable(projectId, id)
+				if (model) {
+					data.splice(index, 1, model)
+				}
+			} else {
+				const model = await ModelApi.getDataTable(projectId, id)
+				if (model) {
+					data.push(model)
+				}
+			}
+			this.modelData.set(projectId, data)
+		},
+		getProjectModelData(projectId: number): SaveDataTableVO[] {
+			return this.modelData.get(projectId)
+		},
+		getModelData(projectId: number, id: string): SaveDataTableVO {
+			const data: SaveDataTableVO[] = this.modelData.get(projectId)
+			const model = data.find((item) => item.id === id)
+			if (model) {
+				return model
+			} else {
+				return {
+					id: id,
+					projectId: projectId,
+					parentId: null,
+					tableName: '',
+					tableComment: '',
+					fields: []
+				}
+			}
+		},
+		hasModelData(projectId: number, id: string): boolean {
+			const data: SaveDataTableVO[] = this.modelData.get(projectId)
+			return data.some((item) => item.id === id)
+		},
+		updateModelDataFields(projectId: number, id: string, fields: EntityField[]) {
+			const data: SaveDataTableVO[] = this.modelData.get(projectId)
+			const model = data.find((item) => item.id === id)
+			if (model) {
+				model.fields = fields
+			}
 		}
+		// updateModelData
+		// endregion
 	}
 });

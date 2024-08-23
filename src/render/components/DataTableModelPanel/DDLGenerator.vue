@@ -58,20 +58,20 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, PropType, reactive, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {MenuOption, NFlex} from "naive-ui";
 import Handlebars from "handlebars";
 import {TemplateApi} from "@render/api/TemplateApi";
 import MonacoEditor from "@render/components/MonacoEditor/MonacoEditor.vue";
 import {isEmpty} from "lodash-es";
+import {useModelManagerStore} from "@render/stores/useModelManager";
 
 const props = defineProps({
 	projectId: Number,
-	datatable: {
-		type: Object as PropType<{ tableName: string, tableComment: string, fields: EntityField[] }>,
-		required: true
-	}
+	modelId: String
 })
+
+const useModelManager = useModelManagerStore()
 
 const dialectMenuOptions = ref<MenuOption[]>([])
 
@@ -108,10 +108,13 @@ const handleUpdateMenu = () => {
 }
 
 const handleCompile = () => {
+
+	const modelData = useModelManager.getModelData(props.projectId, props.modelId)
+
 	const params = {
-		tableName: props.datatable.tableName,
-		tableComment: props.datatable.tableComment,
-		fields: props.datatable.fields,
+		tableName: modelData.tableName,
+		tableComment: modelData.tableComment,
+		fields: modelData.fields,
 		config: {
 			fieldCamelBar: true,
 			toUpperCase: true
@@ -126,7 +129,7 @@ const handleCompile = () => {
 }
 
 // 数据发生变化
-watch(() => props.datatable, () => {
+watch(() => useModelManager.getModelData(props.projectId, props.modelId), () => {
 	handleCompile()
 })
 
@@ -138,11 +141,11 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
-#dialect-menu:deep(.n-menu-item){
+#dialect-menu:deep(.n-menu-item) {
 	height: 32px;
 }
 
-#dialect-menu:deep(.n-menu-item-content){
+#dialect-menu:deep(.n-menu-item-content) {
 	height: 32px;
 }
 </style>
