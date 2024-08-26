@@ -3,8 +3,9 @@
 		id="table-data-editor"
 		v-model:value="inputValue"
 		:options="filteredOptions"
-		@update:value="$emit('update:value', $event)"
 		:get-show="handleGetShow"
+		:to="false"
+		@update:value="$emit('update:value', $event)"
 	>
 		<template #suffix>
 			<div class="i-material-symbols:keyboard-arrow-down-rounded"/>

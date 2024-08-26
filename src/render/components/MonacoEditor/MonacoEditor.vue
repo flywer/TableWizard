@@ -1,14 +1,18 @@
 <template>
 	<div
-		id="editor-container"
 		ref="editorContainer"
 		:style="{ width: width, height: height }"/>
 </template>
 
 <script setup lang="ts">
 import {onMounted, onUnmounted, PropType, ref, watch} from 'vue';
-import * as monaco from 'monaco-editor';
+import * as monaco from "monaco-editor";
 import {registerPgSql} from "@render/components/MonacoEditor/languages/commonsql";
+import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
+import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
+import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
+import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
+import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
 
 const props = defineProps({
 	// 编辑器宽度
@@ -29,7 +33,7 @@ const props = defineProps({
 	// 语言
 	language: {
 		type: String,
-		default: 'javascript'
+		default: 'commonsql'
 	},
 	// 主题: 'vs' | 'vs-dark' | 'hc-black'
 	theme: {
@@ -60,12 +64,42 @@ let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 onMounted(() => {
 	if (editorContainer.value) {
 
-		registerPgSql()
+		const cssArr = ["css", "scss", "less"];
+		const jsonArr = ["json"];
+		const htmlArr = ["html", "handlebars", "razor"];
+		const tsArr = ["typescript", "javascript"];
+
+		// 解决 Unexpected usage at EditorSimpleWorker.loadForeignModule 报错问题
+		self.MonacoEnvironment = {
+			getWorker(_: any, label: any) {
+				if (jsonArr.includes(label)) {
+					return new jsonWorker();
+				}
+				if (cssArr.includes(label)) {
+					return new cssWorker();
+				}
+				if (htmlArr.includes(label)) {
+					return new htmlWorker();
+				}
+				if (tsArr.includes(label)) {
+					return new tsWorker();
+				}
+				return new editorWorker();
+			},
+		};
+
+		monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
+
+		// 获取所有已注册的语言ID的数组
+		const languages = monaco.languages.getLanguages();
+		if (!languages.map(lang => lang.id).includes('commonsql')) {
+			registerPgSql()
+		}
 
 		editor = monaco.editor.create(editorContainer.value, {
 			value: props.code,
-			language: 'commonsql',
-			theme: 'commonsql',
+			language: props.language,
+			theme: props.language === 'commonsql' ? props.language : 'vs',
 			automaticLayout: props.automaticLayout,
 			lineNumbers: props.lineNumbers,
 			wordWrap: props.wordWrap,
@@ -82,6 +116,7 @@ onMounted(() => {
 		});
 
 		emit('editorReady', editor);
+
 	}
 });
 
@@ -99,6 +134,11 @@ onUnmounted(() => {
 		editor.dispose();
 	}
 });
+
+onUnmounted(() => {
+	editor?.dispose();
+});
+
 </script>
 <style scoped>
 

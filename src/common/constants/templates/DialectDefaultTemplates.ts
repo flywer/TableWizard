@@ -9,7 +9,7 @@ export const DialectDefaultTemplates: DialectTemplate[] = [
 				template: `DROP TABLE IF EXISTS {{tableName}};
 CREATE TABLE {{tableName}} (
   {{#each fields}}
-    {{#removeExtraSpaces @data}}{{camelBar fieldName ../config.toUpperCase}} {{typeFormat type ../config.toUpperCase}}{{#if length}}({{length}}){{/if}}{{#if notNull}} NOT NULL{{/if}}{{#if autoIncrement}} AUTO_INCREMENT{{/if}}{{#if primaryKey}} PRIMARY KEY{{/if}}{{#if defaultValue}}{{#if (eq type "varchar")}} DEFAULT '{{defaultValue}}'{{/if}}{{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}}{{/if}}{{#if fieldComment}} COMMENT '{{fieldComment}}'{{/if}}{{#unless @last}} ,{{/unless}}{{/removeExtraSpaces}}
+    {{#removeExtraSpaces @data}}{{underline fieldName ../config.toUpperCase}} {{typeFormat type ../config.toUpperCase}}{{#if length}}({{length}}){{/if}}{{#if notNull}} NOT NULL{{/if}}{{#if autoIncrement}} AUTO_INCREMENT{{/if}}{{#if primaryKey}} PRIMARY KEY{{/if}}{{#if defaultValue}}{{#if (eq type "varchar")}} DEFAULT '{{defaultValue}}'{{/if}}{{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}}{{/if}}{{#if fieldComment}} COMMENT '{{fieldComment}}'{{/if}}{{#unless @last}} ,{{/unless}}{{/removeExtraSpaces}}
   {{/each}}
 ) {{#if tableComment}}COMMENT = '{{tableComment}}'{{/if}};`
 			}
@@ -24,7 +24,7 @@ CREATE TABLE {{tableName}} (
 				template: `DROP TABLE IF EXISTS {{tableName}};
 CREATE TABLE {{tableName}} (
   {{#each fields}}
-    {{#removeExtraSpaces @data}}{{camelBar fieldName ../config.toUpperCase}} {{typeFormat type ../config.toUpperCase}}{{#if length}}({{length}}){{/if}} {{#if notNull}}NOT NULL{{/if}} {{#if primaryKey}}PRIMARY KEY{{/if}} {{#if autoIncrement}}SERIAL{{/if}} {{#if defaultValue}} {{#if (eq type "varchar")}}DEFAULT '{{defaultValue}}'{{/if}} {{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}} {{/if}}{{#unless @last}} ,{{/unless}}{{/removeExtraSpaces}}
+    {{#removeExtraSpaces @data}}{{underline fieldName ../config.toUpperCase}} {{typeFormat type ../config.toUpperCase}}{{#if length}}({{length}}){{/if}} {{#if notNull}}NOT NULL{{/if}} {{#if primaryKey}}PRIMARY KEY{{/if}} {{#if autoIncrement}}SERIAL{{/if}} {{#if defaultValue}} {{#if (eq type "varchar")}}DEFAULT '{{defaultValue}}'{{/if}} {{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}} {{/if}}{{#unless @last}} ,{{/unless}}{{/removeExtraSpaces}}
   {{/each}}
 );
 

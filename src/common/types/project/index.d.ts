@@ -82,3 +82,13 @@ declare interface DialectTemplate {
 	dialect: string // 方言
 	templates: DialectTemplateItemType[]
 }
+
+declare interface TemplateCompileParams {
+	tableName: string,
+	tableComment: string,
+	fields: EntityField[],
+	config: {
+		fieldUnderline: boolean, // 字段名使用下划线
+		toUpperCase: boolean // 字段名转大写
+	}
+}

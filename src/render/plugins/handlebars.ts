@@ -33,7 +33,7 @@ export const handlebarsRegisterDefaultHelper = () => {
 	});
 
 	// 字段默认值格式化
-	Handlebars.registerHelper('camelBar', function (fieldName, toUpperCase) {
+	Handlebars.registerHelper('underline', function (fieldName, toUpperCase) {
 		// 将下划线和首字母后的字符转换为大写
 		const camelCase = fieldName.replace(/_([a-z])/g, function (g) {
 			return g[1].toUpperCase();
