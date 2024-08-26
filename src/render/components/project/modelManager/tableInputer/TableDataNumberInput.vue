@@ -1,24 +1,23 @@
 <template>
-	<div id="table-data-editor">
-			<n-input-number
-				v-model:value="inputValue"
-				:status="validation?.status"
-				:size="size"
-				:show-button="false"
-				placeholder=""
-				:class="className"
-				@update:value="handleUpdateValue"
-			>
-				<template #suffix>
-					<n-tooltip v-if="validation?.status" trigger="hover" class="select-none">
-						<template #trigger>
-							<div class="i-material-symbols:brightness-alert-outline-rounded w-4 h-4"/>
-						</template>
-						{{ validation?.message }}
-					</n-tooltip>
+	<n-input-number
+		id="table-data-editor"
+		v-model:value="inputValue"
+		:status="validation?.status"
+		:size="size"
+		:show-button="false"
+		placeholder=""
+		:class="className"
+		@update:value="handleUpdateValue"
+	>
+		<template #suffix>
+			<n-tooltip v-if="validation?.status" trigger="hover" class="select-none">
+				<template #trigger>
+					<div class="i-material-symbols:brightness-alert-outline-rounded w-4 h-4"/>
 				</template>
-			</n-input-number>
-	</div>
+				{{ validation?.message }}
+			</n-tooltip>
+		</template>
+	</n-input-number>
 </template>
 
 <script setup lang="ts">
@@ -52,19 +51,23 @@ watch(() => props.value, (value) => {
 	inputValue.value = value
 })
 
-onMounted(()=>{
+onMounted(() => {
 	inputValue.value = props.value
 })
 </script>
 
 <style scoped lang="less">
 #table-data-editor {
-  width: calc(100% + 1px);
+	width: calc(100% + 1px);
 }
 
 #table-data-editor:deep(.n-input) {
 	border-radius: 0;
 	height: 36px;
+}
+
+#table-data-editor:deep(.n-input:not(.n-input--focus)) {
+	background: transparent;
 }
 
 #table-data-editor:deep(.n-input-wrapper) {

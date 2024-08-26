@@ -81,6 +81,7 @@ onMounted(() => {
 #table-data-editor:deep(.n-input) {
 	border-radius: 0;
 	height: 36px;
+	background: transparent;
 }
 
 #table-data-editor:deep(.n-input-wrapper) {
