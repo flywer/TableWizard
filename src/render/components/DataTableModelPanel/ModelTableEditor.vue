@@ -110,7 +110,7 @@
 
 <script setup lang="ts">
 import {computed, h, onMounted, PropType, reactive, ref, watch} from "vue";
-import {DataTableColumns, FormInst, NButton, NCheckbox, NFlex, NInput, NText, useThemeVars} from "naive-ui";
+import {DataTableColumns, FormInst, NButton, NFlex, NInput, NText, useThemeVars} from "naive-ui";
 import {v4 as uuidv4} from 'uuid';
 import TableSelect from "@render/components/project/modelManager/tableInputer/TableSelect.vue";
 import {useRefHistory} from "@vueuse/core";

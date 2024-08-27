@@ -4,7 +4,6 @@
 		v-model:value="inputValue"
 		:options="filteredOptions"
 		:get-show="handleGetShow"
-		:to="false"
 		@update:value="$emit('update:value', $event)"
 	>
 		<template #suffix>

@@ -2,6 +2,10 @@ html, body, #app {
 	height: 100%;
 }
 
+body{
+	overflow: hidden;
+}
+
 /* Set the default font family */
 :root {
 	font-family: 'Microsoft PhagsPa', sans-serif;
