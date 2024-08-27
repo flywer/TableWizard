@@ -1,74 +1,90 @@
 import Handlebars from "handlebars";
 
 export const handlebarsRegisterDefaultHelper = () => {
-	// 注册 Handlebars 默认 helper
 
-	// 判断是否相等
-	Handlebars.registerHelper('eq', function (arg1, arg2) {
-		return (arg1 === arg2);
-	});
+    /**
+     * 获取函数的文本内容
+     * @param fun 函数本体
+     * @param funArgs 函数参数
+     **/
+    const getText = (fun: any, funArgs: IArguments) => {
+        const args = Array.from(funArgs).slice(0, -1);
+        const options = funArgs[funArgs.length - 1];
+        if (options.fn) {
+            // 块级使用
+            return options.fn(fun).toString();
+        } else {
+            // 内联使用
+            if (args.length > 0) {
+                return args[0];
+            } else {
+                return '';
+            }
+        }
+    }
 
-	// 字段类型格式化
-	Handlebars.registerHelper('typeFormat', function (type, toUpperCase) {
-		if (!type) {
-			return ''
-		}
+    // 注册 Handlebars 默认 helper
+    // 判断是否相等
+    Handlebars.registerHelper('eq', function (arg1, arg2) {
+        return (arg1 === arg2);
+    });
 
-		let formattedType = type;
+    // 将字符串中的换行符替换为空格
+    Handlebars.registerHelper('newlineToSpace', function () {
+        let text = getText(this, arguments);
+        return text.replace(/\n/g, ' ').replace(/\r/g, '').replace(/\t/g, '').replace(/\s{2,}/g, ' ');
+    });
 
-		// 如果 toUpperCase 为 true，则将类型转换为大写
-		if (toUpperCase) {
-			formattedType = formattedType.toUpperCase();
-		}
+    // 驼峰法转下划线写法
+    Handlebars.registerHelper('underline', function () {
+        let text = getText(this, arguments);
 
-		return formattedType;
-	});
+        // 将下划线和首字母后的字符转换为大写
+        const camelCase = text.replace(/_([a-z])/g, function (g) {
+            return g[1].toUpperCase();
+        });
 
-	// 字段长度格式化
-	Handlebars.registerHelper('lengthFormat', function (length) {
-		if (length) {
-			return `(${length})`;
-		}
-		return '';
-	});
+        // 将大写字母前添加短横线
+        return camelCase.replace(/([A-Z])/g, function (g) {
+            return '_' + g[0].toLowerCase();
+        });
+    });
 
-	// 字段默认值格式化
-	Handlebars.registerHelper('underline', function (fieldName, toUpperCase) {
-		// 将下划线和首字母后的字符转换为大写
-		const camelCase = fieldName.replace(/_([a-z])/g, function (g) {
-			return g[1].toUpperCase();
-		});
+    // 下划线写法转驼峰法
+    Handlebars.registerHelper('camel', function () {
+        let text = getText(this, arguments);
+        return text.replace(/_([a-z])/g, function (g) {
+            return g[1].toUpperCase();
+        });
+    })
 
-		// 将大写字母前添加短横线
-		const camelBar = camelCase.replace(/([A-Z])/g, function (g) {
-			return '_' + g[0].toLowerCase();
-		});
+    // 字符串大写
+    Handlebars.registerHelper('toUpperCase', function () {
+        let text = getText(this, arguments);
+        return text.toUpperCase();
+    })
 
-		if (toUpperCase) {
-			return camelBar.toUpperCase();
-		} else {
-			return camelBar;
-		}
-	});
+    // 字符串小写
+    Handlebars.registerHelper('toLowerCase', function () {
+        let text = getText(this, arguments);
+        return text.toLowerCase();
+    })
 
-	// 判断是否不相等
-	Handlebars.registerHelper('isValid', function (value) {
-		return value && value != '';
-	});
+    // 字符串左右去空格
+    Handlebars.registerHelper('trim', function () {
+        let text = getText(this, arguments);
+        return text.trim();
+    })
 
-	// 去除字符串多余空格
-	Handlebars.registerHelper('removeExtraSpaces', function (text, options) {
-		// 如果是块级调用
-		if (options && options.fn) {
-			// 处理块级内容，去除多余空格
-			let content = options.fn(this);
-			// 将 SafeString 转换为字符串
-			content = content.toString();
-			return content.replace(/\s{2,}/g, ' ').trim();
-		} else {
-			// 否则作为内联函数处理
-			return text.replace(/\s{2,}/g, ' ').trim();
-		}
-	});
+    // 生成空格
+    Handlebars.registerHelper('space', function (count) {
+        //  判断 count 是否为数字类型
+        if (typeof count !== 'number') {
+            //  如果不是数字类型， 则将 count 设置为默认值 0
+            count = 1;
+        }
 
+        //  创建指定数量的空格字符串
+        return new Array(count).join(' ');
+    });
 }

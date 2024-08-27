@@ -18,6 +18,7 @@
 				<n-split
 					min="200px"
 					max="1000px"
+					default-size="300px"
 					style="height: calc(100vh - 350px)"
 				>
 					<template #1>
@@ -27,17 +28,11 @@
 									<template #header>
 										<n-text class="select-none">模板参数定义</n-text>
 									</template>
-									<template #header-extra>
-										<n-tag :size="'small'">必看</n-tag>
-									</template>
 									<TemplateParamsDetail/>
 								</n-collapse-item>
 								<n-collapse-item name="2">
 									<template #header>
 										<n-text class="select-none">Handlebars语法</n-text>
-									</template>
-									<template #header-extra>
-										<n-tag :size="'small'">必看</n-tag>
 									</template>
 									<HandlebarsSyntaxTable/>
 								</n-collapse-item>
@@ -60,6 +55,12 @@
 							max="1000px"
 						>
 							<template #1>
+								<MonacoEditor
+									v-model:code="templateValue"
+									language="handlebars"
+									:style="errorMessage ? {height: `calc(100% - ${errorAlertHeight}px)`} : {height: '100%'}"
+									@update:code="handleUpdateTemplate"
+								/>
 								<n-alert
 									ref="errorAlert"
 									v-if="errorMessage"
@@ -68,12 +69,6 @@
 								>
 									<span class="text-12px">{{ errorMessage }}</span>
 								</n-alert>
-								<MonacoEditor
-									v-model:code="templateValue"
-									language="handlebars"
-									:style="errorMessage ? {height: `calc(100% - ${useElementSize(errorAlert).height}px)`} : {height: '100%'}"
-									@update:code="handleUpdateTemplate"
-								/>
 							</template>
 							<template #2>
 								<MonacoEditor
@@ -104,7 +99,7 @@ import Handlebars from "handlebars";
 import HandlebarsSyntaxTable from "@render/components/TemplateEditor/components/HandlebarsSyntaxTable.vue";
 import TemplateParamsDetail from "@render/components/TemplateEditor/components/TemplateParamsDetail.vue";
 import BuiltInHelperTable from "@render/components/TemplateEditor/components/BuiltInHelperTable.vue";
-import {useElementBounding, useElementSize} from "@vueuse/core";
+import {useElementSize} from "@vueuse/core";
 
 const props = defineProps({
 	show: {
@@ -161,7 +156,8 @@ const compiledValue = ref()
 const hasError = ref(false)
 const errorMessage = ref('')
 
-const errorAlert =ref()
+const errorAlert = ref()
+const {height: errorAlertHeight} = useElementSize(errorAlert)
 
 const templateInit = () => {
 	TemplateApi.getTemplate(props.projectId, props.dialect, props.templateType).then(res => {

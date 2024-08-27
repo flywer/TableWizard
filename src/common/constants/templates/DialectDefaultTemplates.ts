@@ -6,11 +6,22 @@ export const DialectDefaultTemplates: DialectTemplate[] = [
 			{
 				label: '创建表',
 				type: 'createTable',
-				template: `DROP TABLE IF EXISTS {{tableName}};
-CREATE TABLE {{tableName}} (
-  {{#each fields}}
-    {{#removeExtraSpaces @data}}{{underline fieldName ../config.toUpperCase}} {{typeFormat type ../config.toUpperCase}}{{#if length}}({{length}}){{/if}}{{#if notNull}} NOT NULL{{/if}}{{#if autoIncrement}} AUTO_INCREMENT{{/if}}{{#if primaryKey}} PRIMARY KEY{{/if}}{{#if defaultValue}}{{#if (eq type "varchar")}} DEFAULT '{{defaultValue}}'{{/if}}{{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}}{{/if}}{{#if fieldComment}} COMMENT '{{fieldComment}}'{{/if}}{{#unless @last}} ,{{/unless}}{{/removeExtraSpaces}}
-  {{/each}}
+				template: `DROP TABLE IF EXISTS {{toUpperCase tableName}};
+CREATE TABLE {{toUpperCase tableName}} (
+{{#each fields}}
+{{space 3}}{{#trim}}{{#newlineToSpace}}
+  {{toUpperCase (underline fieldName)}}
+  {{toUpperCase type}}{{#if length}}({{length}}){{/if}}
+  {{#if notNull}}NOT NULL{{/if}}
+  {{#if autoIncrement}}AUTO_INCREMENT{{/if}}
+  {{#if primaryKey}}PRIMARY KEY{{/if}}
+  {{#if defaultValue}}
+    {{#if (eq type "varchar")}}DEFAULT '{{defaultValue}}'{{/if}}
+    {{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}}
+  {{/if}}
+  {{#if fieldComment}} COMMENT '{{fieldComment}}'{{/if}}{{#unless @last}},{{/unless}}
+  {{/newlineToSpace}}{{/trim}}
+{{/each}}
 ) {{#if tableComment}}COMMENT = '{{tableComment}}'{{/if}};`
 			}
 		]
@@ -21,17 +32,29 @@ CREATE TABLE {{tableName}} (
 			{
 				label: '创建表',
 				type: 'createTable',
-				template: `DROP TABLE IF EXISTS {{tableName}};
-CREATE TABLE {{tableName}} (
-  {{#each fields}}
-    {{#removeExtraSpaces @data}}{{underline fieldName ../config.toUpperCase}} {{typeFormat type ../config.toUpperCase}}{{#if length}}({{length}}){{/if}} {{#if notNull}}NOT NULL{{/if}} {{#if primaryKey}}PRIMARY KEY{{/if}} {{#if autoIncrement}}SERIAL{{/if}} {{#if defaultValue}} {{#if (eq type "varchar")}}DEFAULT '{{defaultValue}}'{{/if}} {{#unless (eq type "varchar")}}DEFAULT {{defaultValue}}{{/unless}} {{/if}}{{#unless @last}} ,{{/unless}}{{/removeExtraSpaces}}
+				template: `DROP TABLE IF EXISTS {{toUpperCase tableName}};
+CREATE TABLE {{toUpperCase tableName}} (
+{{#each fields}}
+  {{space 3}}{{#trim}}{{#newlineToSpace}}
+    {{toUpperCase (underline fieldName)}}
+    {{toUpperCase type}}{{#if length}}({{length}}){{/if}}
+    {{#if notNull}}NOT NULL{{/if}}
+    {{#if primaryKey}}PRIMARY KEY{{/if}}
+    {{#if autoIncrement}}SERIAL{{/if}}
+    {{#if defaultValue}}
+      {{#if (eq type "varchar")}}DEFAULT '{{defaultValue}}'{{/if}}
+      {{#unless (eq type "varchar")}}DEFAULT{{defaultValue}}{{/unless}}
+    {{/if}}
+    {{#unless @last}},{{/unless}}
+  {{/newlineToSpace}}{{/trim}}
   {{/each}}
 );
 
 {{#if tableComment}}
-COMMENT ON TABLE {{tableName}} IS '{{tableComment}}';
+COMMENT ON TABLE {{toUpperCase tableName}} IS '{{tableComment}}';
 {{/if}}
-{{#each fields}}{{#if fieldComment}}{{#if (isValid fieldComment)}}COMMENT ON COLUMN {{../tableName}}.{{fieldName}} IS '{{fieldComment}}';\n{{/if}}{{/if}}{{/each}}`
+{{#each fields}}{{#if fieldComment}}{{#if fieldComment}}COMMENT ON COLUMN {{toUpperCase ../tableName}}.{{toUpperCase (underline fieldName)}} IS '{{fieldComment}}';
+{{/if}}{{/if}}{{/each}}`
 			}
 		]
 	}

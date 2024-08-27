@@ -482,8 +482,7 @@ const handleSave = () => {
 	})
 }
 
-watch(fields, (value, oldValue) => {
-	console.log(value, oldValue)
+watch(fields, (value) => {
 	if (value) {
 		useModelManager.updateModelDataFields(props.projectId, modelId.value, value)
 	}
