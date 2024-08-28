@@ -3,6 +3,7 @@
 		:code="JSON.stringify(params, null, 2)"
 		language="json"
 		height="300px"
+		:font-size="12"
 	/>
 </template>
 

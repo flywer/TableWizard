@@ -6,7 +6,7 @@
 		:mask-closable="false"
 		:closable="true"
 		:size="'small'"
-		style="width: 80%"
+		style="width: 85%"
 		:segmented="{content: true}"
 		:content-style="{padding: '0'}"
 	>
@@ -14,15 +14,15 @@
 			<n-text class="select-none">{{ title }}</n-text>
 		</template>
 		<template #default>
-			<n-scrollbar style="height: calc(100vh - 350px)">
+			<n-scrollbar style="height: calc(100vh - 300px)">
 				<n-split
 					min="200px"
 					max="1000px"
 					default-size="300px"
-					style="height: calc(100vh - 350px)"
+					style="height: calc(100vh - 300px)"
 				>
 					<template #1>
-						<n-scrollbar style="height: calc(100vh - 350px)">
+						<n-scrollbar style="height: calc(100vh - 300px)">
 							<n-collapse class="p-4">
 								<n-collapse-item title="模板参数定义" name="1">
 									<template #header>
@@ -55,20 +55,28 @@
 							max="1000px"
 						>
 							<template #1>
-								<MonacoEditor
-									v-model:code="templateValue"
-									language="handlebars"
-									:style="errorMessage ? {height: `calc(100% - ${errorAlertHeight}px)`} : {height: '100%'}"
-									@update:code="handleUpdateTemplate"
-								/>
-								<n-alert
-									ref="errorAlert"
-									v-if="errorMessage"
-									type="error"
-									:bordered="false"
-								>
-									<span class="text-12px">{{ errorMessage }}</span>
-								</n-alert>
+								<n-flex vertical class="h-full" :size="0">
+									<n-card :bordered="false" size="small" class="mb-1 select-none h-32px"
+													:content-style="{padding:'4px'}">
+										<n-flex class="items-center justify-center h-full" :size="4">
+											<n-button :size="'small'" dashed @click="">重置为默认模板</n-button>
+										</n-flex>
+									</n-card>
+									<MonacoEditor
+										v-model:code="templateValue"
+										language="handlebars"
+										:style="errorMessage ? {height: `calc(100% - ${errorAlertHeight}px - 32px)`} : {height: 'calc(100% - 32px)'}"
+										@update:code="handleUpdateTemplate"
+									/>
+									<n-alert
+										ref="errorAlert"
+										v-if="errorMessage"
+										type="error"
+										:bordered="false"
+									>
+										<span class="text-12px">{{ errorMessage }}</span>
+									</n-alert>
+								</n-flex>
 							</template>
 							<template #2>
 								<MonacoEditor
@@ -100,6 +108,7 @@ import HandlebarsSyntaxTable from "@render/components/TemplateEditor/components/
 import TemplateParamsDetail from "@render/components/TemplateEditor/components/TemplateParamsDetail.vue";
 import BuiltInHelperTable from "@render/components/TemplateEditor/components/BuiltInHelperTable.vue";
 import {useElementSize} from "@vueuse/core";
+import {NFlex} from "naive-ui";
 
 const props = defineProps({
 	show: {

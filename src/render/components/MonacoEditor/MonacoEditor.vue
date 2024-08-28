@@ -54,6 +54,10 @@ const props = defineProps({
 		type: String as PropType<'off' | 'on' | 'wordWrapColumn' | 'bounded'>,
 		default: 'off'
 	},
+	fontSize: {
+		type: Number,
+		default: 14
+	},
 });
 
 const emit = defineEmits(['update:code', 'editorReady']);
@@ -104,7 +108,7 @@ onMounted(() => {
 			lineNumbers: props.lineNumbers,
 			wordWrap: props.wordWrap,
 			fontFamily: 'v-mono',
-			fontSize: 14,
+			fontSize: props.fontSize,
 			contextmenu: false,
 			minimap: {
 				enabled: false
