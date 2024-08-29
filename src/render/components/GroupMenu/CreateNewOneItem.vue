@@ -2,6 +2,7 @@
 	<n-flex class="w-full mt-1" justify="start" vertical :size="0">
 		<n-button
 			type="primary"
+			:size="'small'"
 			dashed
 			@click="createNewOne({ option: menuOption, checked: false, selected: undefined })"
 		>

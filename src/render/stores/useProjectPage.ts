@@ -4,6 +4,7 @@ import {RouteName} from "@common/constants/app/RouteName";
 import {GroupMenuOptionType} from "@render/components/GroupMenu/types";
 import {ProjectApi} from "@render/api/ProjectApi";
 import {useModelManagerStore} from "@render/stores/useModelManager";
+import {useTypeManagerStore} from "@render/stores/useTypeManager";
 
 export interface TabPanel {
 	key: string // tabPanel的key
@@ -38,12 +39,12 @@ export const useProjectPageStore = defineStore({
 			this.projectStateMap.set(projectId, {
 				activeSideMenuItemKey: state ? state.activeSideMenuItemKey : RouteName.modelManager,
 
-
 				groupMenuSelectedKey: state ? state.groupMenuSelectedKey : null,
 				groupMenuExpandedKeys: state ? state.groupMenuExpandedKeys : [],
 			})
 
 			useModelManagerStore().init(projectId)
+			useTypeManagerStore().init(projectId)
 
 			return this.projectStateMap.get(projectId)
 		},

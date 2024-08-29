@@ -53,7 +53,7 @@ export class ModelService {
     /**
      * 递归查找指定 datatableId 的 JSON 文件
      **/
-    async findDatatableIdFile(folderPath: string, datatableId: string): Promise<any | null> {
+    async findDatatableFile(folderPath: string, datatableId: string): Promise<any | null> {
         const files = fs.readdirSync(folderPath);
 
         for (const file of files) {
@@ -62,7 +62,7 @@ export class ModelService {
 
             if (stats.isDirectory()) {
                 // 递归查找子文件夹
-                const result = await this.findDatatableIdFile(filePath, datatableId);
+                const result = await this.findDatatableFile(filePath, datatableId);
                 if (result) {
                     return result;
                 }

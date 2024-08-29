@@ -4,8 +4,9 @@ import {v4 as uuid} from 'uuid';
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
 import {ModelApi} from "@render/api/ModelApi";
 import {isEmpty} from "lodash";
+import {TypeApi} from "@render/api/TypeApi";
 
-export interface ModelManagerSate {
+export interface TypeManagerSate {
     splitSize: string // 记录页面的splitSize
 
     groupMenuSelectedKey: string // 记录groupMenu的选中项
@@ -29,12 +30,12 @@ export interface ModelTabOptions {
 }
 
 
-export const useModelManagerStore = defineStore({
-    id: 'modelManager',
+export const useTypeManagerStore = defineStore({
+    id: 'typeManager',
     state: () => ({
         menuOption: [] as GroupMenuOption[],
-        stateMap: new Map<number, ModelManagerSate>(), // 记录每个project的modelManage的页面状态
-        modelData: new Map<number, SaveDataTableVO[]>(), // 记录每个project的model的数据
+        stateMap: new Map<number, TypeManagerSate>(), // 记录每个project的modelManage的页面状态
+        typeData: new Map<number, any[]>(), // 记录每个project的model的数据
     }),
     actions: {
         init(projectId: number) {
@@ -48,31 +49,41 @@ export const useModelManagerStore = defineStore({
                 tabPanels: []
             })
 
-            this.modelData.set(projectId, [])
+            this.typeData.set(projectId, [])
+
+
+            console.log(this.typeData)
+        },
+        getEmptyTypeData(id?: string) {
+            if (!id) {
+                id = uuid()
+            }
+            return {
+                id: id,
+                projectId: 0,
+                parentId: '',
+                typeName: '',
+                typeComment: '',
+                databaseTypes: []
+            }
         },
         // region menuOption
         async menuOptionInit(projectId: number) {
-            const datatableMenu = await ModelApi.getDataTableMenu(projectId)
+            const datatypeMenu = await TypeApi.getDataTypeMenu(projectId)
 
             this.menuOption = [
                 {
                     menuType: 'group',
-                    key: 'overview',
-                    label: '项目概览',
-                    type: 'overview',
-                },
-                {
-                    menuType: 'group',
-                    key: 'dataTable',
-                    label: '数据表',
+                    key: 'dataType',
+                    label: '数据类型',
                     type: 'folder',
-                    children: datatableMenu ? [datatableMenu] : undefined,
+                     children: datatypeMenu ? [datatypeMenu] : undefined,
                     createNewOne: ({option}: {
                         option: GroupMenuOption,
                         checked: boolean,
                         selected: boolean
                     }) => {
-                        this.addNewDataTableTabPanel(projectId, null, true)
+                        this.addNewDataTypeTabPanel(projectId, null, true)
                     }
                 },
             ]
@@ -108,7 +119,7 @@ export const useModelManagerStore = defineStore({
         },
         // 根据key判断tabPanel是否存在
         hasTabPanel(projectId: number, key: string) {
-            const state: ModelManagerSate = this.stateMap.get(projectId)
+            const state: TypeManagerSate = this.stateMap.get(projectId)
             if (state?.tabPanels) {
                 return state.tabPanels.some((panel) => panel.panelOptions.key === key)
             } else {
@@ -126,7 +137,7 @@ export const useModelManagerStore = defineStore({
                 return
             }
 
-            const state: ModelManagerSate = this.stateMap.get(projectId)
+            const state: TypeManagerSate = this.stateMap.get(projectId)
             state.tabPanels.push(options)
 
             // 如果当前没有激活的TabPanel则激活此TabPanel
@@ -140,27 +151,9 @@ export const useModelManagerStore = defineStore({
                 this.activeTabPanel(projectId, options.panelOptions.key)
             }
         },
-        addOverviewTabPanel(projectId: number, active?: boolean) {
-            const state: ModelManagerSate = this.stateMap.get(projectId)
-            if (state.tabPanels.some((panel) => panel.panelOptions.key === 'overview')) {
-                this.activeTabPanel(projectId, 'overview')
-            } else {
-                this.addTabPanel(projectId, {
-                    panelOptions: {
-                        key: 'overview',
-                        label: '项目总览',
-                        type: 'overview'
-                    },
-                    modelOptions: {
-                        id: null,
-                        parentId: null
-                    }
-                }, active)
-            }
-        },
         // 移除一个tabPanel
         removeTabPanel(projectId: number, key: string) {
-            const state: ModelManagerSate = this.stateMap.get(projectId)
+            const state: TypeManagerSate = this.stateMap.get(projectId)
             const index = state.tabPanels.findIndex((panel) => panel.panelOptions.key === key)
             if (index >= 0) {
                 state.tabPanels.splice(index, 1)
@@ -173,7 +166,7 @@ export const useModelManagerStore = defineStore({
             }
         },
         activeTabPanel(projectId: number, key: string) {
-            const state: ModelManagerSate = this.stateMap.get(projectId)
+            const state: TypeManagerSate = this.stateMap.get(projectId)
             state.activeTabKey = key
             state.groupMenuSelectedKey = key
         },
@@ -184,13 +177,13 @@ export const useModelManagerStore = defineStore({
             this.stateMap.get(projectId).groupMenuExpandedKeys = keys
         },
         // 添加一个新的数据表TabPanel
-        addNewDataTableTabPanel(projectId: number, parentId: string, active?: boolean) {
+        addNewDataTypeTabPanel(projectId: number, parentId: string, active?: boolean) {
             const id = uuid()
             this.addTabPanel(projectId, {
                 panelOptions: {
                     key: id,
-                    label: '新建数据表',
-                    type: 'datatable'
+                    label: '新建数据类型',
+                    type: 'datatype'
                 },
                 modelOptions: {
                     id: id,
@@ -199,7 +192,7 @@ export const useModelManagerStore = defineStore({
             }, active)
         },
         updateTabPanelLabel(projectId: number, key: string, label: string) {
-            const state: ModelManagerSate = this.stateMap.get(projectId)
+            const state: TypeManagerSate = this.stateMap.get(projectId)
             const panel = state.tabPanels.find((panel) => panel.panelOptions.key === key)
             if (panel) {
                 panel.panelOptions.label = label
@@ -209,29 +202,39 @@ export const useModelManagerStore = defineStore({
             this.stateMap.get(projectId).splitSize = size
         },
         // endregion
-        // region modelData
-        async setModelData(projectId: number, id: string) {
-            const data: SaveDataTableVO[] = this.getProjectModelData(projectId)
+        // region typeData
+        async setTypeData(projectId: number, id: string) {
+            const data: SaveDataTypeVO[] = this.typeData.get(projectId)
             if (data.some((item) => item.id === id)) {
                 // 替换
                 const index = data.findIndex((item) => item.id === id)
-                const model = await ModelApi.getDataTable(projectId, id)
+                const model = await TypeApi.getTypeData(projectId, id)
                 if (model) {
                     data.splice(index, 1, model)
                 }
             } else {
-                const model = await ModelApi.getDataTable(projectId, id)
+                const model = await TypeApi.getTypeData(projectId, id)
+                console.log(model)
                 if (model) {
                     data.push(model)
+                } else {
+                    data.push({
+                        id: id,
+                        projectId: projectId,
+                        parentId: null,
+                        typeName: '',
+                        typeComment: '',
+                        databaseTypes: []
+                    })
                 }
             }
-            this.modelData.set(projectId, data)
+            this.typeData.set(projectId, data)
         },
-        getProjectModelData(projectId: number): SaveDataTableVO[] {
-            return this.modelData.get(projectId)
+        getProjectTypeData(projectId: number): SaveDataTypeVO[] {
+            return this.typeData.get(projectId)
         },
-        getModelData(projectId: number, id: string): SaveDataTableVO {
-            const data: SaveDataTableVO[] = this.modelData.get(projectId)
+        getTypeData(projectId: number, id: string): SaveDataTypeVO {
+            const data: SaveDataTypeVO[] = this.typeData.get(projectId)
             const model = data.find((item) => item.id === id)
             if (model) {
                 return model
@@ -240,24 +243,23 @@ export const useModelManagerStore = defineStore({
                     id: id,
                     projectId: projectId,
                     parentId: null,
-                    tableName: '',
-                    tableComment: '',
-                    fields: []
+                    typeName: '',
+                    typeComment: '',
+                    databaseTypes: []
                 }
             }
         },
-        hasModelData(projectId: number, id: string): boolean {
-            const data: SaveDataTableVO[] = this.modelData.get(projectId)
+        hasTypeData(projectId: number, id: string): boolean {
+            const data: SaveDataTypeVO[] = this.typeData.get(projectId)
             return data.some((item) => item.id === id)
         },
-        updateModelDataFields(projectId: number, id: string, fields: EntityField[]) {
-            const data: SaveDataTableVO[] = this.modelData.get(projectId)
+        updateTypeDataFields(projectId: number, id: string, fields: DataBaseType[]) {
+            const data: SaveDataTypeVO[] = this.typeData.get(projectId)
             const model = data.find((item) => item.id === id)
             if (model) {
-                model.fields = fields
+                model.databaseTypes = fields
             }
         }
-        // updateModelData
         // endregion
     }
 });

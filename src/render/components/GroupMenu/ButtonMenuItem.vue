@@ -10,7 +10,7 @@
 		@mouseleave="handleMouseLeave"
 	>
 		<template #default>
-			<n-flex class="w-full pr-1" :size="0" align="center" justify="space-between" :wrap="false">
+			<n-flex class="w-full pl-1 pr-1" :size="0" align="center" justify="space-between" :wrap="false">
 				<n-flex
 					ref="itemContextRef"
 					class="item-content"

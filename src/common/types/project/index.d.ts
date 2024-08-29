@@ -92,3 +92,17 @@ declare interface TemplateCompileParams {
 		toUpperCase: boolean // 字段名转大写
 	}
 }
+
+declare interface DataBaseType {
+	databaseId: string
+	type: string
+}
+
+declare interface SaveDataTypeVO {
+	id: string
+	projectId: number
+	parentId: string
+	typeName: string
+	typeComment: string
+	databaseTypes: DataBaseType[]
+}

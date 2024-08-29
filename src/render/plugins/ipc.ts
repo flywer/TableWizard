@@ -15,7 +15,7 @@ interface IpcInstance {
 const interceptResponse = <T>(response: T): any => {
     //CommonResult 包装，主要是逐渐统一返回格式
     // 判断response是否有code、data、message属性，如果有则认为是CommonResult
-    if (response && (response as any).code !== undefined && (response as any).data !== undefined && (response as any).message !== undefined) {
+    if (response && typeof response == 'object' && 'code' in response && 'data' in response && 'message' in response) {
         const result = response as CommonResult<T>
 
         if (result.code !== 0) {

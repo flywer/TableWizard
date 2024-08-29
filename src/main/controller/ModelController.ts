@@ -77,7 +77,7 @@ export class ModelController {
 		const folderPath = join(project.projectPath, 'models', 'datatable');
 		ensureDirSync(folderPath);
 
-		const data = await this.modelService.findDatatableIdFile(folderPath, datatableId);
+		const data = await this.modelService.findDatatableFile(folderPath, datatableId);
 
 		return CommonResult.success(data)
 	}

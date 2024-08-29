@@ -43,6 +43,7 @@ import GroupMenu from "@render/components/GroupMenu/GroupMenu.vue";
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
 import {NButton, NFlex, NText, useThemeVars} from "naive-ui"
 import {useModelManagerStore} from "@render/stores/useModelManager";
+import OnlyButtonLabel from "@render/components/GroupMenu/OnlyButtonLabel.vue";
 
 const props = defineProps({
 	projectId: Number
@@ -119,7 +120,7 @@ const renderLabel = ({option, checked, selected}: {
 	selected: boolean
 }) => {
 	if (option.key === 'overview') {
-		return h(NText, null, () => '项目概览')
+		return h(OnlyButtonLabel, {label: '项目概览'})
 	} else if (option.key === 'dataTable') {
 		const expandedKeys = useModelManager.stateMap.get(props.projectId).groupMenuExpandedKeys
 		const isExpanded = expandedKeys.includes(option.key)
@@ -131,7 +132,7 @@ const renderLabel = ({option, checked, selected}: {
 			className = 'i-material-symbols:arrow-right-rounded ' + (isExpanded ? 'rotate-90' : '')
 		}
 
-		return h(NFlex, {size: 4, wrap: false}, () => [
+		return h(NFlex, {size: 4, wrap: false, align: 'center'}, () => [
 			h(NText, null, '数据表'),
 			h('div', {class: className})
 		])

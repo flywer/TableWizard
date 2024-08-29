@@ -161,10 +161,6 @@ const updateExpandedKeys = (keys: string[], options: GroupMenuOption[]) => {
 		internalExpandedKeys.value = keys;
 	}
 };
-
-onMounted(() => {
-
-})
 </script>
 
 <style scoped lang="less">
