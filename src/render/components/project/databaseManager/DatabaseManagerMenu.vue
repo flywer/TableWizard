@@ -22,6 +22,16 @@
           @update:expanded-keys="handleUpdateExpandedKey"
       />
     </div>
+    <div class="absolute top-40 left-0 right-4 bottom-0">
+      <PrettyTreeMenu
+          :tree-data="menuOptions"
+          :render-label="handleRenderLabel"
+          :selected-keys="useTypeManager.stateMap.get(projectId).groupMenuSelectedKeys"
+          :expanded-keys="useTypeManager.stateMap.get(projectId).groupMenuExpandedKeys"
+          @update:selected-keys="handleUpdateSelectedKeys"
+          @update:expanded-keys="handleUpdateExpandedKey"
+      />
+    </div>
     <n-dropdown
         trigger="manual"
         placement="bottom-start"
@@ -38,11 +48,13 @@
 </template>
 
 <script setup lang="ts">
-import {h, reactive} from "vue";
+import {h, reactive, VNodeChild} from "vue";
 import GroupMenu from "@render/components/GroupMenu/GroupMenu.vue";
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
-import {NButton, NFlex, NText, useThemeVars} from "naive-ui"
+import {NButton, NFlex, NText, TreeOption, useThemeVars} from "naive-ui"
 import {useTypeManagerStore} from "@render/stores/useTypeManager";
+import PrettyTreeMenu from "@render/components/PrettyTreeMenu/PrettyTreeMenu.vue";
+import {PrettyTreeMenuOption} from "@render/components/PrettyTreeMenu";
 
 const props = defineProps({
   projectId: Number
@@ -61,6 +73,62 @@ const dropdownParam = reactive({
 const handleClickoutside = () => {
   dropdownParam.show = false
 }
+
+const menuOptions = reactive<PrettyTreeMenuOption[]>([
+  {
+    key: 'dataType',
+    label: '数据类型',
+    hideExpandIcon: true,
+    needLabelRightExpandIcon: true,
+    prefix: () => {
+      return renderMenuIcon(`i-tabler:folder `)
+    }
+  },
+  {
+    key: 'overview',
+    label: '概览',
+    hideExpandIcon: true
+  },
+  {
+    key: 'dataTable',
+    label: '数据表',
+    hideExpandIcon: true,
+    needLabelRightExpandIcon: true,
+    children: [
+      {
+        key: 'dataTable-root',
+        label: '数据表',
+        hideExpandIcon: true,
+        children: [
+          {
+            key: 'dataTable-root-1',
+            label: '数据表1'
+          },
+          {
+            key: 'dataTable-root-2',
+            label: '数据表2'
+          }
+        ]
+      }
+    ]
+  }
+])
+
+const handleRenderLabel = (info: { option: PrettyTreeMenuOption, checked: boolean, selected: boolean }): VNodeChild => {
+  if (info.option?.needLabelRightExpandIcon) {
+    const expandedKeys = useTypeManager.stateMap.get(props.projectId).groupMenuExpandedKeys
+    const isExpanded = expandedKeys.includes(info.option.key as string)
+    const className = 'i-material-symbols:arrow-right-rounded ' + (isExpanded ? 'rotate-90' : '')
+
+    return h(NFlex, {size: 4, wrap: false, align: 'center'}, () => [
+      h(NText, null, info.option.label),
+      h('div', {class: className})
+    ])
+  }
+
+  return info.option.label
+}
+
 
 const renderMenuIcon = (className: string) => {
   return h('div', {class: className + " text-lg mr-1"})
@@ -212,6 +280,15 @@ const handleDropdownSelect = (key: string) => {
   }
 
   dropdownParam.show = false
+}
+
+
+const handleUpdateSelectedKeys = (keys: Array<string>, option: Array<TreeOption | null>, meta: {
+  node: TreeOption | null,
+  action: 'select' | 'unselect'
+}) => {
+  console.log(option)
+  useTypeManager.updateGroupMenuSelectedKeys(props.projectId, keys)
 }
 </script>
 

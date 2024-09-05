@@ -4,7 +4,6 @@ import CommonResult from "@common/CommonResult";
 import {join} from "path";
 import jsonfile from "jsonfile";
 import {ProjectService} from "@main/service/ProjectService";
-import {GroupMenuOption} from "@render/components/GroupMenu/types";
 import {ModelService} from "@main/service/ModelService";
 import {FsUtils} from "@common/utils/FsUtils";
 import {ensureDirSync} from "fs-extra";
@@ -48,7 +47,7 @@ export class ModelController {
 	 * 获取数据表菜单项
 	 **/
 	@IpcHandle(ModelApiChannel.GET_DATATABLE_MENU)
-	async getDataTableMenu(projectId: number): Promise<CommonResult<GroupMenuOption>> {
+	async getDataTableMenu(projectId: number): Promise<CommonResult<any>> {
 		const project = await this.projectService.getProjectById(projectId);
 		const folderPath = join(project.projectPath, 'models', 'datatable');
 
@@ -60,14 +59,7 @@ export class ModelController {
 			return CommonResult.success(null)
 		} else {
 			// 为其添加一个根节点
-			return CommonResult.success({
-				menuType: 'tree',
-				type: 'folder',
-				label: '根目录',
-				key: 'datatable-root',
-				hiddenExpandIcon: true,
-				children: data
-			})
+			return CommonResult.success(data)
 		}
 	}
 

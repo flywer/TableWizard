@@ -11,39 +11,26 @@
 			</n-flex>
 		</div>
 		<div class="absolute top-10 left-0 right-4 bottom-0">
-			<GroupMenu
-				:menu-options="useModelManager.menuOption"
-				:selected-key="useModelManager.stateMap.get(projectId).groupMenuSelectedKey"
+			<PrettyTreeMenu
+				:tree-data="useModelManager.menuOptions"
+				:render-label="handleRenderLabel"
+				:render-prefix="handleRenderPrefix"
+				:selected-keys="useModelManager.stateMap.get(projectId).groupMenuSelectedKeys"
 				:expanded-keys="useModelManager.stateMap.get(projectId).groupMenuExpandedKeys"
-				:render-prefix="customPrefix"
-				:render-label="renderLabel"
-				:render-suffix="customSuffix"
-				@update:selected-key="handleUpdateSelectedKey"
+				@update:selected-keys="handleUpdateSelectedKeys"
 				@update:expanded-keys="handleUpdateExpandedKey"
 			/>
 		</div>
-		<n-dropdown
-			trigger="manual"
-			placement="bottom-start"
-			:size="'small'"
-			:show="dropdownParam.show"
-			:options="dropdownParam.options"
-			:x="dropdownParam.x"
-			:y="dropdownParam.y"
-			@select="handleDropdownSelect"
-			@clickoutside="handleClickoutside"
-			@mouseleave="handleClickoutside"
-		/>
 	</div>
 </template>
 
 <script setup lang="ts">
-import {h, onMounted, reactive} from "vue";
-import GroupMenu from "@render/components/GroupMenu/GroupMenu.vue";
+import {h, onMounted, reactive, VNodeChild} from "vue";
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
 import {NButton, NFlex, NText, useThemeVars} from "naive-ui"
 import {useModelManagerStore} from "@render/stores/useModelManager";
-import OnlyButtonLabel from "@render/components/GroupMenu/OnlyButtonLabel.vue";
+import PrettyTreeMenu from "@render/components/PrettyTreeMenu/PrettyTreeMenu.vue";
+import {PrettyMenuUtils, PrettyTreeMenuOption} from "@render/components/PrettyTreeMenu";
 
 const props = defineProps({
 	projectId: Number
@@ -51,172 +38,81 @@ const props = defineProps({
 
 const useModelManager = useModelManagerStore()
 
-const dropdownParam = reactive({
-	show: false,
-	options: [],
-	menuOption: null,
-	x: null,
-	y: null
-})
+const handleRenderLabel = (info: { option: PrettyTreeMenuOption, checked: boolean, selected: boolean }): VNodeChild => {
+	if (info.option?.needLabelRightExpandIcon) {
+		const expandedKeys = useModelManager.stateMap.get(props.projectId).groupMenuExpandedKeys
+		const isExpanded = expandedKeys.includes(info.option.key as string)
+		const className = 'i-material-symbols:arrow-right-rounded ' + (isExpanded ? 'rotate-90' : '')
 
-const handleClickoutside = () => {
-	dropdownParam.show = false
+		return h(NFlex, {size: 4, wrap: false, align: 'center'}, () => [
+			h(NText, null, info.option.label),
+			h('div', {class: className})
+		])
+	}
+
+	return info.option.label
+}
+
+const handleRenderPrefix = (info: {
+	option: PrettyTreeMenuOption,
+	checked: boolean,
+	selected: boolean
+}): VNodeChild => {
+	const actionColor = ''
+
+	const key = info.option.key as string
+	if (key === 'overview') {
+		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:layout-dashboard ${actionColor}`)
+	} else if (key === 'dataTableTree') {
+		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:table-options ${actionColor}`)
+	} else if (key === 'datatableRoot') {
+		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:folder ${actionColor}`)
+	} else if (key.startsWith('datatableFolder-')) {
+		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:folder ${actionColor}`)
+	} else {
+		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:table ${actionColor}`)
+	}
 }
 
 const renderMenuIcon = (className: string) => {
 	return h('div', {class: className + " text-lg mr-1"})
 }
 
-const handleUpdateSelectedKey = (key: string, option: GroupMenuOption) => {
-	if (key === 'overview') {
+const handleUpdateSelectedKeys = (
+	keys: Array<string | number>,
+	option: Array<PrettyTreeMenuOption | null>,
+	meta: { node: PrettyTreeMenuOption | null, action: 'select' | 'unselect' }
+) => {
+	const key = keys[0] as string
+	const currentOption = option[0]
 
+	if (key === 'overview') {
 		useModelManager.addOverviewTabPanel(props.projectId, true)
-	} else if (key === 'datatable') {
+	} else if (key === 'datatableTree' || key === 'datatableRoot' || key.startsWith('datatableFolder-')) {
 		return;
-	} else if (option.type === 'datatable') {
+	} else if (key.startsWith('datatable-')) {
 		// 打开数据表
 		useModelManager.addTabPanel(props.projectId, {
 			panelOptions: {
 				key: key,
-				label: option.label,
+				label: currentOption.label,
 				type: 'datatable'
 			},
 			modelOptions: {
-				id: key,
+				id: key.replace('datatable-', ''),
 			}
 		}, true)
 	}
 }
 
 const handleUpdateExpandedKey = (keys: string[], options: GroupMenuOption[]) => {
+	if (!keys.some(key => key === 'datatableRoot')) {
+		keys.push('datatableRoot')
+	}
 	useModelManager.updateGroupMenuExpandedKeys(props.projectId, keys)
 }
 
-const customPrefix = ({option, checked, selected}: {
-	option: GroupMenuOption,
-	checked: boolean,
-	selected: boolean
-}) => {
-	let actionColor = selected ? `text-[${useThemeVars().value.primaryColor}]` : ''
-	// 清除actionColor里的空格
-	actionColor = actionColor.replace(/\s+/g, '')
-
-	if (option.key === 'overview') {
-		return renderMenuIcon(`i-tabler:layout-dashboard ${actionColor}`)
-	} else if (option.key === 'dataTable') {
-		return renderMenuIcon(`i-tabler:table-options ${actionColor}`)
-	} else if (option.key.endsWith('-root')) {
-		return renderMenuIcon(`i-tabler:folder ${actionColor}`)
-	} else if (option.type === 'folder') {
-		return renderMenuIcon(`i-tabler:folder ${actionColor}`)
-	} else {
-		return renderMenuIcon(`i-tabler:table ${actionColor}`)
-	}
-}
-
-const renderLabel = ({option, checked, selected}: {
-	option: GroupMenuOption,
-	checked: boolean,
-	selected: boolean
-}) => {
-	if (option.key === 'overview') {
-		return h(OnlyButtonLabel, {label: '项目概览'})
-	} else if (option.key === 'dataTable') {
-		const expandedKeys = useModelManager.stateMap.get(props.projectId).groupMenuExpandedKeys
-		const isExpanded = expandedKeys.includes(option.key)
-
-		let className = ''
-		if (useModelManager.hasChildrenMenu(option.key, useModelManager.menuOption)) {
-			className = 'i-material-symbols:arrow-right-rounded ' + (isExpanded ? 'rotate-90' : '')
-		} else {
-			className = 'i-material-symbols:arrow-right-rounded ' + (isExpanded ? 'rotate-90' : '')
-		}
-
-		return h(NFlex, {size: 4, wrap: false, align: 'center'}, () => [
-			h(NText, null, '数据表'),
-			h('div', {class: className})
-		])
-	}
-
-	return h(NText, {class: 'whitespace-nowrap overflow-hidden text-ellipsis flex-1 line-height-18px'}, () => option.label)
-}
-
-const datatableGroupDropdownOptions = [
-	{
-		label: '新建数据表',
-		key: 'createDatatable',
-		icon: () => h('div', {class: 'i-tabler:table-plus'})
-	},
-	{
-		label: '新建文件夹',
-		key: 'createFolder',
-		icon: () => h('div', {class: 'i-tabler:folder-plus'})
-	}
-]
-
-const dropdownOptionsMap = {
-	dataTable: datatableGroupDropdownOptions
-}
-
-const getDropdownOptionsMap = (option: GroupMenuOption) => {
-
-	return
-}
-
-const customSuffix = ({option, checked, selected}: {
-	option: GroupMenuOption,
-	checked: boolean,
-	selected: boolean
-}) => {
-	if (option.key !== 'overview') {
-		return h(NButton,
-			{
-				size: 'tiny',
-				class: 'hover:display-none',
-				quaternary: true,
-				onClick: (event) => {
-					event.stopPropagation(); // 阻止事件冒泡到父元素
-
-					dropdownParam.x = event.clientX;
-					dropdownParam.y = event.clientY; // 将 y 设置为按钮下边缘
-
-					dropdownParam.options = dropdownOptionsMap[option.key]
-					dropdownParam.menuOption = option
-					dropdownParam.show = true
-				}
-			},
-			{
-				icon: () => h('div', {class: 'i-material-symbols:more-horiz'})
-			})
-	} else {
-		return null
-	}
-}
-
-/**
- * 这里控制所有的下拉菜单的点击事件
- **/
-const handleDropdownSelect = (key: string) => {
-	switch (key) {
-		case 'createDatatable':
-			let parentId = null
-			if (dropdownParam.menuOption.key !== 'dataTable') {
-				parentId = dropdownParam.menuOption.key
-			}
-			useModelManager.addNewDataTableTabPanel(props.projectId, parentId, true)
-			break
-		case 'createFolder':
-			// handleCreateFolder()
-			break
-	}
-
-	dropdownParam.show = false
-}
-
 onMounted(() => {
-	/*	ModelApi.getDataTableMenu(props.projectId).then((res) => {
-			console.log(res)
-		})*/
 })
 
 </script>
