@@ -15,8 +15,8 @@ export interface PrettyTreeMenuOption extends TreeOption {
 }
 
 export class PrettyMenuUtils {
-	static renderPrettyMenuIcon = (className: string) => {
-		return h('div', {class: className + " text-lg mr-1"})
+	static renderPrettyMenuIcon = (className: string, color?: string) => {
+		return h('div', {class: className + " text-lg mr-1", style: {color: color}})
 	}
 
 	// 根据key查找菜单项

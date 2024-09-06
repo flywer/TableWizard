@@ -1,0 +1,10 @@
+
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 21v-4a3 3 0 0 1 3-3h5"></path><path d="m8 17l3-3l-3-3"></path><path d="M3 11V6a2 2 0 0 1 2-2h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8"></path></g></svg>
+</template>
+
+<script>
+export default {
+  name: 'TablerFolderSymlink'
+}
+</script>

@@ -2,7 +2,7 @@
 	<div>
 		<div class="absolute top-0 left-0 right-0 h-10">
 			<n-flex justify="space-between" align="center" class="pr-4">
-				<n-text class="whitespace-nowrap overflow-hidden text-ellipsis text-lg" depth="2">模型管理</n-text>
+				<n-text class="whitespace-nowrap overflow-hidden text-ellipsis text-base" depth="2">模型管理</n-text>
 				<n-button :size="'small'" text @click="useModelManager.updateSplitSize(projectId,'0px')">
 					<template #icon>
 						<div class="i-lets-icons:expand-left-stop"/>
@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import {h, onMounted, reactive, VNodeChild} from "vue";
+import {computed, h, onMounted, VNodeChild} from "vue";
 import {GroupMenuOption} from "@render/components/GroupMenu/types";
 import {NButton, NFlex, NText, useThemeVars} from "naive-ui"
 import {useModelManagerStore} from "@render/stores/useModelManager";
@@ -37,6 +37,8 @@ const props = defineProps({
 })
 
 const useModelManager = useModelManagerStore()
+
+const primaryColor = computed(() => useThemeVars().value.primaryColor)
 
 const handleRenderLabel = (info: { option: PrettyTreeMenuOption, checked: boolean, selected: boolean }): VNodeChild => {
 	if (info.option?.needLabelRightExpandIcon) {
@@ -58,19 +60,21 @@ const handleRenderPrefix = (info: {
 	checked: boolean,
 	selected: boolean
 }): VNodeChild => {
-	const actionColor = ''
+	let actionColor = info.selected ? primaryColor.value : ''
+	// 清除actionColor里的空格
+	actionColor = actionColor.replace(/\s+/g, '')
 
 	const key = info.option.key as string
 	if (key === 'overview') {
-		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:layout-dashboard ${actionColor}`)
+		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:layout-dashboard`, actionColor)
 	} else if (key === 'dataTableTree') {
-		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:table-options ${actionColor}`)
+		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:table-options `, actionColor)
 	} else if (key === 'datatableRoot') {
-		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:folder ${actionColor}`)
+		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:folder `, actionColor)
 	} else if (key.startsWith('datatableFolder-')) {
-		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:folder ${actionColor}`)
+		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:folder `, actionColor)
 	} else {
-		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:table ${actionColor}`)
+		return PrettyMenuUtils.renderPrettyMenuIcon(`i-tabler:table `, actionColor)
 	}
 }
 

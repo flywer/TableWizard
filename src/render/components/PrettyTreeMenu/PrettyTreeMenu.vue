@@ -209,10 +209,11 @@ const handleDropdownSelect = (key: string) => {
 }
 
 #pretty-tree-menu:deep(.n-tree-node-content__text) {
-	line-height: 20px;
+	align-self: center;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	font-size: 12px;
 }
 
 #pretty-tree-menu:deep(.n-tree-node-wrapper) {

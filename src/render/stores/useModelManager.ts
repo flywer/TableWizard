@@ -8,6 +8,8 @@ import {PrettyMenuUtils, PrettyTreeMenuOption} from "@render/components/PrettyTr
 import {h} from "vue";
 import {useTopMenuStore} from "@render/stores/useTopMenu";
 import TablerCopy from "@render/components/icon/TablerCopy.vue";
+import TablerFolderSymlink from "@render/components/icon/TablerFolderSymlink.vue";
+import TablerTableExport from "@render/components/icon/TablerTableExport.vue";
 
 export interface ModelManagerSate {
 	splitSize: string // 记录页面的splitSize
@@ -121,6 +123,7 @@ export const useModelManagerStore = defineStore({
 		// 递归为每个菜单项设置图标、下拉菜单
 		setMenuOptions(options: PrettyTreeMenuOption[]) {
 			options.forEach(option => {
+				// 数据表节点
 				if (option.key.toString().startsWith('datatable-')) {
 					option.dropdownOptions = [
 						{
@@ -136,12 +139,12 @@ export const useModelManagerStore = defineStore({
 						{
 							label: '移动到',
 							key: 'move',
-							icon: () => h('div', {class: 'i-tabler:folder-symlink'})
+							icon: () => h(TablerFolderSymlink)
 						},
 						{
 							label: '导出',
 							key: 'export',
-							icon: () => h('div', {class: 'i-tabler:table-export'})
+							icon: () => h(TablerTableExport)
 						},
 						{
 							type: 'divider'
@@ -151,6 +154,23 @@ export const useModelManagerStore = defineStore({
 							key: 'delete',
 							icon: () => h('div', {class: 'i-tabler:trash'})
 						},
+					];
+					option.onDropdownSelect = (key: string) => {
+
+					}
+				} else if (option.key.toString().startsWith('datatableFolder-')) {
+					// 目录节点
+					option.dropdownOptions = [
+						{
+							label: '新建数据表',
+							key: 'createDatatable',
+							icon: () => h('div', {class: 'i-tabler:table-plus'})
+						},
+						{
+							label: '新建子目录',
+							key: 'createFolder',
+							icon: () => h('div', {class: 'i-tabler:folder-plus'})
+						}
 					];
 					option.onDropdownSelect = (key: string) => {
 
