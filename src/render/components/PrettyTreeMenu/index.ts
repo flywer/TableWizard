@@ -2,7 +2,6 @@ import {DropdownOption, TreeOption} from "naive-ui";
 import {h} from "vue";
 import {isEmpty} from "lodash-es";
 
-
 export interface PrettyTreeMenuOption extends TreeOption {
 	// 隐藏展开图标
 	hideExpandIcon?: boolean
@@ -12,6 +11,23 @@ export interface PrettyTreeMenuOption extends TreeOption {
 	dropdownOptions?: DropdownOption[]
 	// 下拉菜单选项点击事件
 	onDropdownSelect?: (key: string) => void
+}
+
+export type RenderMenuNodeInfo = {
+	option: PrettyTreeMenuOption,
+	checked: boolean,
+	selected: boolean
+}
+
+export type UpdateSelectedKeysInfo = {
+	keys: Array<string | number>,
+	option: Array<PrettyTreeMenuOption | null>,
+	meta: { node: PrettyTreeMenuOption | null, action: 'select' | 'unselect' }
+}
+
+export type UpdateExpandedKeysInfo = {
+	keys: string[],
+	options: Array<PrettyTreeMenuOption>
 }
 
 export class PrettyMenuUtils {

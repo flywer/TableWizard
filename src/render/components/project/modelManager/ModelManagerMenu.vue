@@ -11,8 +11,28 @@
 			</n-flex>
 		</div>
 		<div class="absolute top-10 left-0 right-4 bottom-0">
+			<n-flex :wrap="false" class="w-full mb-2">
+				<n-input
+					:size="'small'"
+					placeholder=""
+					v-model:value="searchValue"
+					clearable
+				>
+					<template #prefix>
+						<div class="i-tabler:search"/>
+					</template>
+				</n-input>
+				<n-button :size="'small'" text @click="handleMenuLocation">
+					<template #icon>
+						<RenderIcon className="i-material-symbols:my-location-outline-rounded"/>
+					</template>
+				</n-button>
+			</n-flex>
+
 			<PrettyTreeMenu
+				ref="prettyTreeMenuRef"
 				:tree-data="useModelManager.menuOptions"
+				:pattern="searchValue"
 				:render-label="handleRenderLabel"
 				:render-prefix="handleRenderPrefix"
 				:selected-keys="useModelManager.stateMap.get(projectId).groupMenuSelectedKeys"
@@ -25,12 +45,17 @@
 </template>
 
 <script setup lang="ts">
-import {computed, h, onMounted, VNodeChild} from "vue";
-import {GroupMenuOption} from "@render/components/GroupMenu/types";
+import {computed, h, ref, VNodeChild} from "vue";
 import {NButton, NFlex, NText, useThemeVars} from "naive-ui"
 import {useModelManagerStore} from "@render/stores/useModelManager";
 import PrettyTreeMenu from "@render/components/PrettyTreeMenu/PrettyTreeMenu.vue";
-import {PrettyMenuUtils, PrettyTreeMenuOption} from "@render/components/PrettyTreeMenu";
+import {
+	PrettyMenuUtils,
+	RenderMenuNodeInfo,
+	UpdateExpandedKeysInfo,
+	UpdateSelectedKeysInfo
+} from "@render/components/PrettyTreeMenu";
+import RenderIcon from "@render/components/icon/RenderIcon.vue";
 
 const props = defineProps({
 	projectId: Number
@@ -38,9 +63,13 @@ const props = defineProps({
 
 const useModelManager = useModelManagerStore()
 
+const prettyTreeMenuRef = ref(null);
+
 const primaryColor = computed(() => useThemeVars().value.primaryColor)
 
-const handleRenderLabel = (info: { option: PrettyTreeMenuOption, checked: boolean, selected: boolean }): VNodeChild => {
+const searchValue = ref()
+
+const handleRenderLabel = (info: RenderMenuNodeInfo): VNodeChild => {
 	if (info.option?.needLabelRightExpandIcon) {
 		const expandedKeys = useModelManager.stateMap.get(props.projectId).groupMenuExpandedKeys
 		const isExpanded = expandedKeys.includes(info.option.key as string)
@@ -55,11 +84,7 @@ const handleRenderLabel = (info: { option: PrettyTreeMenuOption, checked: boolea
 	return info.option.label
 }
 
-const handleRenderPrefix = (info: {
-	option: PrettyTreeMenuOption,
-	checked: boolean,
-	selected: boolean
-}): VNodeChild => {
+const handleRenderPrefix = (info: RenderMenuNodeInfo): VNodeChild => {
 	let actionColor = info.selected ? primaryColor.value : ''
 	// 清除actionColor里的空格
 	actionColor = actionColor.replace(/\s+/g, '')
@@ -78,15 +103,7 @@ const handleRenderPrefix = (info: {
 	}
 }
 
-const renderMenuIcon = (className: string) => {
-	return h('div', {class: className + " text-lg mr-1"})
-}
-
-const handleUpdateSelectedKeys = (
-	keys: Array<string | number>,
-	option: Array<PrettyTreeMenuOption | null>,
-	meta: { node: PrettyTreeMenuOption | null, action: 'select' | 'unselect' }
-) => {
+const handleUpdateSelectedKeys = ({keys, option, meta}: UpdateSelectedKeysInfo) => {
 	const key = keys[0] as string
 	const currentOption = option[0]
 
@@ -109,16 +126,16 @@ const handleUpdateSelectedKeys = (
 	}
 }
 
-const handleUpdateExpandedKey = (keys: string[], options: GroupMenuOption[]) => {
+const handleUpdateExpandedKey = ({keys}: UpdateExpandedKeysInfo) => {
 	if (!keys.some(key => key === 'datatableRoot')) {
 		keys.push('datatableRoot')
 	}
 	useModelManager.updateGroupMenuExpandedKeys(props.projectId, keys)
 }
 
-onMounted(() => {
-})
-
+const handleMenuLocation = () => {
+	prettyTreeMenuRef.value?.scrollToSelected()
+}
 </script>
 
 <style scoped lang="less">

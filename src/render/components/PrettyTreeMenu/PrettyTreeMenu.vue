@@ -1,19 +1,22 @@
 <template>
 	<n-tree
 		id="pretty-tree-menu"
+		ref="treeMenuRef"
 		block-line
 		:data="treeData"
+		:pattern="pattern"
+		:show-irrelevant-nodes="false"
 		:cancelable="false"
 		:multiple="false"
-		:render-label="renderLabel"
-		:render-prefix="renderPrefix"
+		:render-label="renderLabel as any"
+		:render-prefix="renderPrefix as any"
 		:render-switcher-icon="renderSwitcherIcon"
 		:node-props="nodeProps"
 		:override-default-node-click-behavior="clickOverride"
 		:selected-keys="selectedKeys"
 		:expanded-keys="expandedKeys"
-		@update:selected-keys="handleUpdateSelectedKeys"
-		@update:expanded-keys="$emit('update:expanded-keys', $event)"
+		@update:selected-keys="handleUpdateSelectedKeys as any"
+		@update:expanded-keys="handleUpdateExpandedKeys"
 	/>
 
 	<n-dropdown
@@ -32,30 +35,61 @@
 
 <script setup lang="ts">
 import {NButton, TreeOption} from "naive-ui";
-import {h, HTMLAttributes, onMounted, PropType, reactive, render, VNodeChild} from "vue";
+import {h, HTMLAttributes, onMounted, PropType, reactive, ref, render, VNodeChild} from "vue";
 import {useMutationObserver} from "@vueuse/core";
-import {PrettyMenuUtils, PrettyTreeMenuOption} from "@render/components/PrettyTreeMenu/index";
+import {
+	PrettyMenuUtils,
+	PrettyTreeMenuOption,
+	RenderMenuNodeInfo,
+	UpdateExpandedKeysInfo,
+	UpdateSelectedKeysInfo
+} from "@render/components/PrettyTreeMenu/index";
 import {isEmpty} from "lodash";
 
 type ClickOverrideType = 'toggleExpand' | 'toggleSelect' | 'toggleCheck' | 'default' | 'none'
 
 const props = defineProps({
 	treeData: Array as PropType<PrettyTreeMenuOption[]>,
+	pattern: String,
 	selectedKeys: Array as PropType<string[]>,
 	expandedKeys: Array as PropType<string[]>,
-	renderLabel: Function as PropType<(info: {
-		option: PrettyTreeMenuOption,
-		checked: boolean,
-		selected: boolean
-	}) => VNodeChild>,
-	renderPrefix: Function as PropType<(info: {
-		option: PrettyTreeMenuOption,
-		checked: boolean,
-		selected: boolean
-	}) => VNodeChild>,
+	renderLabel: Function as PropType<(info: RenderMenuNodeInfo) => VNodeChild>,
+	renderPrefix: Function as PropType<(info: RenderMenuNodeInfo) => VNodeChild>,
 })
 
 const emit = defineEmits(['update:selected-keys', 'update:expanded-keys'])
+
+interface ScrollTo {
+	(x: number, y: number): void;
+
+	(options: { left?: number; top?: number; debounce?: boolean }): void;
+
+	(options: { index: number; debounce?: boolean }): void;
+
+	(options: { key: string | number; debounce?: boolean }): void;
+
+	(options: { position: 'top' | 'bottom'; debounce?: boolean }): void;
+}
+
+defineExpose({
+	scrollTo: (info: ScrollTo) => treeMenuRef?.value.scrollTo(info),
+	scrollToSelected: () => {
+		const selectedNode = document.querySelector('.n-tree-node-selected');
+		if (selectedNode) {
+			selectedNode.scrollIntoView({block: 'center', inline: 'center'});
+		}
+	}
+})
+
+const treeMenuRef = ref(null)
+
+const dropdownParam = reactive({
+	show: false,
+	options: [],
+	menuOption: null,
+	x: null,
+	y: null
+})
 
 const renderSwitcherIcon = () => {
 	return h('div', {class: 'i-tabler:chevron-right w-3'})
@@ -116,21 +150,6 @@ const renderDropdownButton = (container: HTMLElement, option: PrettyTreeMenuOpti
 	render(vNode, container);
 }
 
-// 利用 VueUse 监听 DOM 变化并动态修改样式
-onMounted(() => {
-	const treeMenu = document.getElementById('pretty-tree-menu');
-	if (treeMenu) {
-		hideExpandIcon(treeMenu)
-		useMutationObserver(treeMenu, mutations => {
-			for (const mutation of mutations) {
-				if (mutation.type === 'childList') {
-					hideExpandIcon(treeMenu)
-				}
-			}
-		}, {childList: true, subtree: true});
-	}
-});
-
 const hideExpandIcon = (treeMenu: HTMLElement) => {
 	if (treeMenu) {
 		const nodes = treeMenu.querySelectorAll('.n-tree-node-switcher');
@@ -162,16 +181,21 @@ const handleUpdateSelectedKeys = (keys: Array<string | number>, option: Array<Tr
 	node: TreeOption | null,
 	action: 'select' | 'unselect'
 }) => {
-	emit('update:selected-keys', keys as string[], option as PrettyTreeMenuOption[], meta)
+	const info: UpdateSelectedKeysInfo = {
+		keys: keys as string[],
+		option: option as PrettyTreeMenuOption[],
+		meta
+	}
+	emit('update:selected-keys', info)
 }
 
-const dropdownParam = reactive({
-	show: false,
-	options: [],
-	menuOption: null,
-	x: null,
-	y: null
-})
+const handleUpdateExpandedKeys = (keys: string[], options: TreeOption[]) => {
+	const info: UpdateExpandedKeysInfo = {
+		keys,
+		options
+	}
+	emit('update:expanded-keys', info)
+}
 
 const handleClickoutside = () => {
 	dropdownParam.show = false
@@ -182,6 +206,22 @@ const handleDropdownSelect = (key: string) => {
 	menuOption?.onDropdownSelect?.(key);
 	dropdownParam.show = false;
 }
+
+// 利用 VueUse 监听 DOM 变化并动态修改样式
+onMounted(() => {
+	const treeMenu = document.getElementById('pretty-tree-menu');
+	if (treeMenu) {
+		hideExpandIcon(treeMenu)
+		useMutationObserver(treeMenu, mutations => {
+			for (const mutation of mutations) {
+				if (mutation.type === 'childList') {
+					hideExpandIcon(treeMenu)
+				}
+			}
+		}, {childList: true, subtree: true});
+	}
+	treeMenuRef.value.scrollTo({top: 0})
+});
 
 </script>
 
