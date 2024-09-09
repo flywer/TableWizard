@@ -6,106 +6,109 @@
 			</n-button>
 		</n-flex>
 	</n-card>
-	<!--	<n-scrollbar style="height: calc(100vh - 220px)">-->
-	<div class="pr-4">
-		<n-card size="small" class="mb-1 select-none" :content-style="{padding:'4px'}">
-			<n-h5 prefix="bar">数据表信息</n-h5>
-			<n-form
-				ref="formRef"
-				:model="useModelManager.getModelData(projectId,modelId)"
-				:rules="formRules"
-				:size="'small'"
-			>
-				<n-grid :cols="2" :x-gap="4">
-					<n-form-item-gi label="表名称" path="tableName">
-						<n-input v-model:value="useModelManager.getModelData(projectId,modelId).tableName" placeholder="表名称"
-										 size="small"/>
-					</n-form-item-gi>
-					<n-form-item-gi label="表注释" path="tableComment">
-						<n-input v-model:value="useModelManager.getModelData(projectId,modelId).tableComment" placeholder="表注释"
-										 size="small"/>
-					</n-form-item-gi>
-				</n-grid>
-			</n-form>
-		</n-card>
+	<n-scrollbar style="height: calc(100vh - 220px)">
 
-		<n-card size="small" class="mb-1 select-none" :content-style="{padding:'4px'}">
-			<template #default>
-				<n-flex :size="'small'" justify="space-between">
-					<n-flex class="items-center justify-center h-full" :size="0">
-						<component
-							:is="tableButton({
+		<div class="pr-4">
+			<n-card size="small" class="mb-1 select-none" :content-style="{padding:'4px'}">
+				<n-h5 prefix="bar">数据表信息</n-h5>
+				<n-form
+					ref="formRef"
+					:model="useModelManager.getModelData(projectId,modelId)"
+					:rules="formRules"
+					:size="'small'"
+				>
+					<n-grid :cols="2" :x-gap="4">
+						<n-form-item-gi label="表名称" path="tableName">
+							<n-input v-model:value="useModelManager.getModelData(projectId,modelId).tableName" placeholder="表名称"
+											 size="small"/>
+						</n-form-item-gi>
+						<n-form-item-gi label="表注释" path="tableComment">
+							<n-input v-model:value="useModelManager.getModelData(projectId,modelId).tableComment" placeholder="表注释"
+											 size="small"/>
+						</n-form-item-gi>
+					</n-grid>
+				</n-form>
+			</n-card>
+
+			<n-card size="small" class="mb-1 select-none" :content-style="{padding:'4px'}">
+				<template #default>
+					<n-flex :size="'small'" justify="space-between">
+						<n-flex class="items-center justify-center h-full" :size="0">
+							<component
+								:is="tableButton({
 									iconClassName: 'i-material-symbols:add-rounded',
 									onClick: () =>handleAddRow()
 								})"/>
-						<component
-							:is="tableButton({
+							<component
+								:is="tableButton({
 									iconClassName: 'i-material-symbols:check-indeterminate-small-rounded',
 									disabled: fields.length === 0,
 									onClick: () =>handleRemoveRow()
 								})"/>
-						<n-divider vertical/>
-						<component
-							:is="tableButton({
+							<n-divider vertical/>
+							<component
+								:is="tableButton({
 									iconClassName: 'i-material-symbols:vertical-align-top-rounded',
 									onClick: () =>handleTopRow()
 								})"/>
-						<component
-							:is="tableButton({
+							<component
+								:is="tableButton({
 									iconClassName: 'i-material-symbols:arrow-upward-rounded',
 									onClick: () =>handleUpwardRow()
 								})"/>
-						<component
-							:is="tableButton({
+							<component
+								:is="tableButton({
 									iconClassName: 'i-material-symbols:arrow-downward-rounded',
 									onClick: () =>handleDownwardRow()
 								})"/>
-						<component
-							:is="tableButton({
+							<component
+								:is="tableButton({
 									iconClassName: 'i-material-symbols:vertical-align-bottom-rounded',
 									onClick: () =>handleBottomRow()
 								})"/>
-						<n-divider vertical/>
-						<component
-							:is="tableButton({
+							<n-divider vertical/>
+							<component
+								:is="tableButton({
 									iconClassName: 'i-material-symbols:undo-rounded',
 									disabled:!canUndo || history.length <= 2,
 									onClick: () =>undo()
 								})"/>
-						<component
-							:is="tableButton({
+							<component
+								:is="tableButton({
 									iconClassName: 'i-material-symbols:redo-rounded',
 									disabled:!canRedo,
 									onClick: () =>redo()
 								})"/>
+						</n-flex>
+
+						<n-flex class="items-center justify-center h-full" :size="0">
+
+						</n-flex>
+
 					</n-flex>
+				</template>
+			</n-card>
 
-					<n-flex class="items-center justify-center h-full" :size="0">
+			<PrettyAgGrid v-model:row-data="useModelManager.getModelData(projectId, modelId).fields"/>
 
-					</n-flex>
-
-				</n-flex>
-			</template>
-		</n-card>
-
-		<n-data-table
-			id="field-table"
-			v-model:checked-row-keys="checkedRowKeys"
-			:bordered="true"
-			:single-line="false"
-			:size="'small'"
-			:columns="columns"
-			:data="fields"
-			max-height="calc(100vh - 430px)"
-			:scroll-x="1500"
-			:row-key="row => row.id"
-			@update:checked-row-keys="handleCheckedRowKeys"
-		/>
-		<!--			{{ history }}
-					{{ modelOptions }}
-					<pre>{{ JSON.stringify(fields, null, 2) }}</pre>-->
-	</div>
-	<!--	</n-scrollbar>-->
+			<n-data-table
+				id="field-table"
+				v-model:checked-row-keys="checkedRowKeys"
+				:bordered="true"
+				:single-line="false"
+				:size="'small'"
+				:columns="columns"
+				:data="fields"
+				max-height="calc(100vh - 430px)"
+				:scroll-x="1500"
+				:row-key="row => row.id"
+				@update:checked-row-keys="handleCheckedRowKeys"
+			/>
+			<!--			{{ history }}
+						{{ modelOptions }}
+						<pre>{{ JSON.stringify(fields, null, 2) }}</pre>-->
+		</div>
+	</n-scrollbar>
 </template>
 
 <script setup lang="ts">
@@ -120,6 +123,7 @@ import TableDataNumberInput from "@render/components/project/modelManager/tableI
 import {ModelApi} from "@render/api/ModelApi";
 import {cloneDeep} from "lodash-es";
 import TableCheckBox from "@render/components/project/modelManager/tableInputer/TableCheckBox.vue";
+import PrettyAgGrid from "@render/components/PrettyAgGrid/PrettyAgGrid.vue";
 
 const props = defineProps({
 	projectId: {
@@ -367,7 +371,7 @@ const handleCheckedRowKeys = (keys: Array<string | number>, rows: object[], meta
 	row: object | undefined,
 	action: 'check' | 'uncheck' | 'checkAll' | 'uncheckAll'
 }) => {
-	console.log(keys, rows, meta)
+	// console.log(keys, rows, meta)
 }
 
 const handleAddRow = () => {
@@ -483,6 +487,7 @@ const handleSave = () => {
 }
 
 watch(fields, (value) => {
+	console.log(value)
 	if (value) {
 		useModelManager.updateModelDataFields(props.projectId, modelId.value, value)
 	}

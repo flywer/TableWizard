@@ -57,17 +57,17 @@ declare interface DataTableType {
 
 // 表字段属性
 declare interface EntityField {
-	id: string
-	fieldName: string
-	fieldComment: string
-	primaryKey: boolean
-	notNull: boolean
-	autoIncrement: boolean
-	type: string
-	length: number
+	id: string // 唯一标识符
+	fieldName: string // 字段名称
+	fieldComment: string // 显示名称
+	primaryKey: boolean // 是否为主键
+	notNull: boolean // 是否不允许为空
+	autoIncrement: boolean // 是否自动递增
+	type: string // 字段类型
+	length: number // 字段长度
 	scale: number // 小数位数
-	defaultValue: string
-	hideInGraph: boolean
+	defaultValue: string // 默认值
+	hideInGraph: boolean // 是否在图表中隐藏
 }
 
 // 模板项
